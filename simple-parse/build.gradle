@@ -1,0 +1,30 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.0.+'
+        classpath 'com.jakewharton.sdkmanager:gradle-plugin:0.12.+'
+    }
+}
+
+apply plugin: 'android-sdk-manager'
+apply plugin: 'com.android.library'
+
+dependencies {
+}
+
+android {
+    buildToolsVersion "21.1.0"
+    compileSdkVersion 21
+
+    defaultConfig {
+        minSdkVersion 8
+        targetSdkVersion 21
+        versionCode = Integer.parseInt(VERSION_CODE)
+        versionName = VERSION_NAME
+    }
+}
+
+apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'

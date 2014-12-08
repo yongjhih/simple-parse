@@ -1,0 +1,11 @@
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2'
+}
+
+allprojects {
+    version = VERSION_NAME
+    group = GROUP
+    repositories {
+        jcenter()
+    }
+}
