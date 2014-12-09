@@ -27,17 +27,20 @@ import java.util.Set;
 import java.util.Collection;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.lang.reflect.Field;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseClassName;
 import com.parse.GetCallback;
 import com.parse.FindCallback;
+import com.parse.CountCallback;
+import com.parse.ParseException;
 import org.json.JSONObject;
 
-public class SimpleParseObject {
+public class SimpleParseObject<T extends ParseObject> {
     private ParseObject mParseObject;
-    private Class<?> mKlass;
+    private Class<T> mKlass;
 
     private final Map<Class<?>, String> mClassNameCache =
         new LinkedHashMap<Class<?>, String>();
@@ -51,10 +54,13 @@ public class SimpleParseObject {
     private final Map<Field, String> mColumnNameCache =
         new LinkedHashMap<Field, String>();
 
+    private ParseQuery<T> mQuery;
+    private String mObjectId;
+
     private SimpleParseObject() {
     }
 
-    public SimpleParseObject(Class<?> klass) {
+    public SimpleParseObject(Class<T> klass) {
         mKlass = klass;
     }
 
@@ -66,7 +72,7 @@ public class SimpleParseObject {
         public String name;
     }
 
-    private String getClassName(Class<?> klass) {
+    private String getClassName(Class<T> klass) {
         String name = mClassNameCache.get(klass);
 
         if (name != null) {
@@ -134,6 +140,7 @@ public class SimpleParseObject {
 
                 if (value == null) {
                     mParseObject.put(columnName, JSONObject.NULL);
+                    //mParseObject.remove(columnName);
                 }
                 else if (fieldType.equals(Byte.class) || fieldType.equals(byte.class)) {
                     mParseObject.put(columnName, (Byte) value);
@@ -179,6 +186,31 @@ public class SimpleParseObject {
     }
 
     /*
+    String objectId = gameScore.getObjectId();
+    Date updatedAt = gameScore.getUpdatedAt();
+    Date createdAt = gameScore.getCreatedAt();
+    */
+
+    // pinInBackground()
+
+    // createWithoutData
+
+    // fetchFromLocalDatastoreInBackground()
+
+    // unpinInBackground()
+
+    /*
+     * gameScore.increment("score");
+     * gameScore.saveInBackground();
+     */
+
+    /* gameScore.addAllUnique("skills", Arrays.asList("flying", "kungfu"));
+     * gameScore.saveInBackground();
+     */
+
+    // saveEventuall()
+
+    /*
     public static void registerSubclass(Class<?> klass) {
         getClassName(klass);
         getColumnFields(klass);
@@ -188,33 +220,218 @@ public class SimpleParseObject {
 
     // SimpleParseQuery.from(Profile.class).is("xWMyZ4YEGZ").query(new GetCallback<ParseUser>() {});
 
+    private Boolean mIsObjectId;
     public SimpleParseObject is(String objectId) {
         mObjectId = objectId;
+        mIsObjectId = true;
         return this;
     }
 
     public SimpleParseObject isNot(String objectId) {
+        mObjectId = objectId;
+        mIsObjectId = false;
         return this;
     }
 
     public SimpleParseObject is(String key, Object value) {
-        mQuery = ParseQuery.getQuery(getClassName(mKlass));
-        mQuery.whereEqualTo(key, value);
+        getQuery().whereEqualTo(key, value);
         return this;
     }
 
-    private ParseQuery<ParseObject> mQuery;
-    private String mObjectId;
-
-    private void get(GetCallback<ParseObject> getCallback) {
-        mQuery.getInBackground(mObjectId, getCallback);
+    public SimpleParseObject isNot(String key, Object value) {
+        getQuery().whereNotEqualTo(key, value);
+        return this;
     }
 
-    private void findInBackground(FindCallback<ParseObject> findCallback) {
+    public SimpleParseObject up(String key, Object value) {
+        getQuery().whereGreaterThanOrEqualTo(key, value);
+        return this;
+    }
+
+    public SimpleParseObject upOf(String key, Object value) {
+        getQuery().whereGreaterThan(key, value);
+        return this;
+    }
+
+    public SimpleParseObject down(String key, Object value) {
+        getQuery().whereLessThanOrEqualTo(key, value);
+        return this;
+    }
+
+    public SimpleParseObject downOf(String key, Object value) {
+        getQuery().whereLessThan(key, value);
+        return this;
+    }
+
+    public SimpleParseObject in(String key, List<Object> values) {
+        getQuery().whereContainedIn(key, values);
+        return this;
+    }
+
+    public SimpleParseObject notIn(String key, List<Object> values) {
+        getQuery().whereNotContainedIn(key, values);
+        return this;
+    }
+
+    public SimpleParseObject has(String key) {
+        getQuery().whereExists(key);
+        return this;
+    }
+
+    public SimpleParseObject hasNot(String key) {
+        getQuery().whereDoesNotExist(key);
+        return this;
+    }
+
+    public SimpleParseObject in(String key, String value, ParseQuery<T> query) {
+        getQuery().whereMatchesKeyInQuery(key, value, query);
+        return this;
+    }
+
+    public SimpleParseObject in(String key, String value, SimpleParseObject simpleParseObject) {
+        in(key, value, simpleParseObject.getQuery());
+        return this;
+    }
+
+    public SimpleParseObject notIn(String key, String value, ParseQuery<T> query) {
+        getQuery().whereDoesNotMatchKeyInQuery(key, value, query);
+        return this;
+    }
+
+    public SimpleParseObject notIn(String key, String value, SimpleParseObject simpleParseObject) {
+        in(key, value, simpleParseObject.getQuery());
+        return this;
+    }
+
+    public SimpleParseObject keys(List<String> keys) {
+        getQuery().selectKeys(keys);
+        return this;
+    }
+
+    /*
+    public SimpleParseObject keys(String... keys) {
+        keys(keys);
+        return this;
+    }
+    */
+
+    public SimpleParseObject hasAll(String key, List<Object> values) {
+        getQuery().whereContainsAll(key, values);
+        return this;
+    }
+
+    public SimpleParseObject starts(String key, String value) {
+        getQuery().whereStartsWith(key, value);
+        return this;
+    }
+
+    public SimpleParseObject matches(String key, ParseQuery<T> query) {
+        getQuery().whereMatchesQuery(key, query);
+        return this;
+    }
+
+    public SimpleParseObject matches(String key, SimpleParseObject simpleParseObject) {
+        matches(key, simpleParseObject.getQuery());
+        return this;
+    }
+
+    public SimpleParseObject notMatches(String key, ParseQuery<T> query) {
+        getQuery().whereDoesNotMatchQuery(key, query);
+        return this;
+    }
+
+    public SimpleParseObject notMatches(String key, SimpleParseObject simpleParseObject) {
+        notMatches(key, simpleParseObject.getQuery());
+        return this;
+    }
+
+    public SimpleParseObject descending(String key) {
+        getQuery().orderByDescending(key);
+        return this;
+    }
+
+    public SimpleParseObject ascending(String key) {
+        getQuery().orderByAscending(key);
+        return this;
+    }
+
+    public SimpleParseObject addDescending(String key) {
+        getQuery().addDescendingOrder(key);
+        return this;
+    }
+
+    public SimpleParseObject addAscending(String key) {
+        getQuery().addAscendingOrder(key);
+        return this;
+    }
+
+    public SimpleParseObject skip(int size) {
+        getQuery().setSkip(size);
+        return this;
+    }
+
+    public SimpleParseObject limit(int size) {
+        getQuery().setLimit(size);
+        return this;
+    }
+
+    public SimpleParseObject include(String key) {
+        getQuery().include(key);
+        return this;
+    }
+
+    public SimpleParseObject local() {
+        getQuery().fromLocalDatastore();
+        return this;
+    }
+
+    // unpinAllInBackground
+    // pinAllInBackground
+
+    public SimpleParseObject cachePolicy(ParseQuery.CachePolicy policy) { // extends Enum<ParseQuery.CachePolicy>
+        getQuery().setCachePolicy(policy);
+        return this;
+    }
+
+    /*
+    public boolean hasCachedResult() {
+        return getQuery().hasCachedResult();
+    }
+
+    public boolean clearCachedResult() {
+        return getQuery().clearCachedResult();
+    }
+    */
+
+    public ParseQuery<T> getQuery() {
+        if (mQuery == null) {
+            mQuery = ParseQuery.getQuery(getClassName(mKlass));
+        }
+        return mQuery;
+    }
+
+    private void get(GetCallback<T> getCallback) {
+        if (mIsObjectId != null) {
+            getQuery().getInBackground(mObjectId, getCallback);
+        }
+    }
+
+    private void findInBackground(FindCallback<T> findCallback) {
         find(findCallback);
     }
 
-    private void find(FindCallback<ParseObject> findCallback) {
-        mQuery.findInBackground(findCallback);
+    private void find(FindCallback<T> findCallback) {
+        getQuery().findInBackground(findCallback);
+    }
+
+    private void find() {
+        try {
+            getQuery().find();
+        } catch (ParseException e) {
+        }
+    }
+
+    private void count(CountCallback countCallback) {
+        getQuery().countInBackground(countCallback);
     }
 }
