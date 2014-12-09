@@ -38,9 +38,9 @@ import com.parse.CountCallback;
 import com.parse.ParseException;
 import org.json.JSONObject;
 
-public class SimpleParseObject<T extends ParseObject> {
+public class SimpleParseObject {
     private ParseObject mParseObject;
-    private Class<T> mKlass;
+    private Class<?> mKlass;
 
     private final Map<Class<?>, String> mClassNameCache =
         new LinkedHashMap<Class<?>, String>();
@@ -54,13 +54,13 @@ public class SimpleParseObject<T extends ParseObject> {
     private final Map<Field, String> mColumnNameCache =
         new LinkedHashMap<Field, String>();
 
-    private ParseQuery<T> mQuery;
+    private ParseQuery<ParseObject> mQuery;
     private String mObjectId;
 
     private SimpleParseObject() {
     }
 
-    public SimpleParseObject(Class<T> klass) {
+    public SimpleParseObject(Class<?> klass) {
         mKlass = klass;
     }
 
@@ -72,7 +72,7 @@ public class SimpleParseObject<T extends ParseObject> {
         public String name;
     }
 
-    private String getClassName(Class<T> klass) {
+    private String getClassName(Class<?> klass) {
         String name = mClassNameCache.get(klass);
 
         if (name != null) {
@@ -130,59 +130,66 @@ public class SimpleParseObject<T extends ParseObject> {
     }
 
     public void saveInBackground(Object object) {
-        mParseObject = new ParseObject(getClassName(mKlass));
+        saveInBackground(object, (ParseObject) null);
+    }
+
+    public void saveInBackground(Object from, ParseObject to) {
+        if (to == null) {
+            mParseObject = new ParseObject(getClassName(mKlass));
+            to = mParseObject;
+        }
         for (Field field : getColumnFields(mKlass)) {
             final String columnName = getColumnName(field);
             Class<?> fieldType = field.getType();
             field.setAccessible(true);
             try {
-                Object value = field.get(object);
+                Object value = field.get(from);
 
                 if (value == null) {
-                    mParseObject.put(columnName, JSONObject.NULL);
-                    //mParseObject.remove(columnName);
+                    to.put(columnName, JSONObject.NULL);
+                    //to.remove(columnName);
                 }
                 else if (fieldType.equals(Byte.class) || fieldType.equals(byte.class)) {
-                    mParseObject.put(columnName, (Byte) value);
+                    to.put(columnName, (Byte) value);
                 }
                 else if (fieldType.equals(Short.class) || fieldType.equals(short.class)) {
-                    mParseObject.put(columnName, (Short) value);
+                    to.put(columnName, (Short) value);
                 }
                 else if (fieldType.equals(Integer.class) || fieldType.equals(int.class)) {
-                    mParseObject.put(columnName, (Integer) value);
+                    to.put(columnName, (Integer) value);
                 }
                 else if (fieldType.equals(Long.class) || fieldType.equals(long.class)) {
-                    mParseObject.put(columnName, (Long) value);
+                    to.put(columnName, (Long) value);
                 }
                 else if (fieldType.equals(Float.class) || fieldType.equals(float.class)) {
-                    mParseObject.put(columnName, (Float) value);
+                    to.put(columnName, (Float) value);
                 }
                 else if (fieldType.equals(Double.class) || fieldType.equals(double.class)) {
-                    mParseObject.put(columnName, (Double) value);
+                    to.put(columnName, (Double) value);
                 }
                 else if (fieldType.equals(Boolean.class) || fieldType.equals(boolean.class)) {
-                    mParseObject.put(columnName, (Boolean) value);
+                    to.put(columnName, (Boolean) value);
                 }
                 else if (fieldType.equals(Character.class) || fieldType.equals(char.class)) {
-                    mParseObject.put(columnName, value.toString());
+                    to.put(columnName, value.toString());
                 }
                 else if (fieldType.equals(String.class)) {
-                    mParseObject.put(columnName, value.toString());
+                    to.put(columnName, value.toString());
                 }
                 else if (fieldType.equals(Byte[].class) || fieldType.equals(byte[].class)) {
-                    mParseObject.put(columnName, (byte[]) value);
+                    to.put(columnName, (byte[]) value);
                 }
                 else if (fieldType.equals(JSONObject.class)) {
-                    mParseObject.put(columnName, (JSONObject) value);
+                    to.put(columnName, (JSONObject) value);
                 }
                 //else if (ReflectionUtils.isSubclassOf(fieldType, Enum.class)) {
-                    //mParseObject.put(columnName, ((Enum<?>) value).name());
+                    //to.put(columnName, ((Enum<?>) value).name());
                 //}
             } catch (IllegalArgumentException e) {
             } catch (IllegalAccessException e) {
             }
         }
-        mParseObject.saveInBackground();
+        to.saveInBackground();
     }
 
     /*
@@ -283,7 +290,7 @@ public class SimpleParseObject<T extends ParseObject> {
         return this;
     }
 
-    public SimpleParseObject in(String key, String value, ParseQuery<T> query) {
+    public SimpleParseObject in(String key, String value, ParseQuery<? extends ParseObject> query) {
         getQuery().whereMatchesKeyInQuery(key, value, query);
         return this;
     }
@@ -293,7 +300,7 @@ public class SimpleParseObject<T extends ParseObject> {
         return this;
     }
 
-    public SimpleParseObject notIn(String key, String value, ParseQuery<T> query) {
+    public SimpleParseObject notIn(String key, String value, ParseQuery<? extends ParseObject> query) {
         getQuery().whereDoesNotMatchKeyInQuery(key, value, query);
         return this;
     }
@@ -325,7 +332,7 @@ public class SimpleParseObject<T extends ParseObject> {
         return this;
     }
 
-    public SimpleParseObject matches(String key, ParseQuery<T> query) {
+    public SimpleParseObject matches(String key, ParseQuery<? extends ParseObject> query) {
         getQuery().whereMatchesQuery(key, query);
         return this;
     }
@@ -335,7 +342,7 @@ public class SimpleParseObject<T extends ParseObject> {
         return this;
     }
 
-    public SimpleParseObject notMatches(String key, ParseQuery<T> query) {
+    public SimpleParseObject notMatches(String key, ParseQuery<? extends ParseObject> query) {
         getQuery().whereDoesNotMatchQuery(key, query);
         return this;
     }
@@ -403,24 +410,24 @@ public class SimpleParseObject<T extends ParseObject> {
     }
     */
 
-    public ParseQuery<T> getQuery() {
+    public ParseQuery<ParseObject> getQuery() {
         if (mQuery == null) {
             mQuery = ParseQuery.getQuery(getClassName(mKlass));
         }
         return mQuery;
     }
 
-    private void get(GetCallback<T> getCallback) {
+    private void get(GetCallback<ParseObject> getCallback) {
         if (mIsObjectId != null) {
             getQuery().getInBackground(mObjectId, getCallback);
         }
     }
 
-    private void findInBackground(FindCallback<T> findCallback) {
+    private void findInBackground(FindCallback<ParseObject> findCallback) {
         find(findCallback);
     }
 
-    private void find(FindCallback<T> findCallback) {
+    private void find(FindCallback<ParseObject> findCallback) {
         getQuery().findInBackground(findCallback);
     }
 
