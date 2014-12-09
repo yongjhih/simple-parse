@@ -13,6 +13,8 @@ apply plugin: 'android-sdk-manager'
 apply plugin: 'com.android.library'
 
 dependencies {
+    compile fileTree(dir: 'src/main/libs', include: '*.jar')
+    compile 'com.facebook.android:facebook-android-sdk:3.20.+'
 }
 
 android {
