@@ -1,11 +1,6 @@
 Simple Parse
 ============
 
-Usage
-=====
-
-A Type
-
 before:
 
 ```java
@@ -22,8 +17,8 @@ after:
 ParseGameScore gameScore = new ParseGameScore();
 gameScore.score = 1337;
 gameScore.playerName = "Sean Plott";
-gameScore.cheatMode = true;
-gameScore.saveInBackground();
+gameScore.cheatMode = false;
+gameScore.saveInBackground(); //SimpleParseQuery.from(ParseGameScore.class).saveInBackground(gameScore);
 ```
 
 before:
@@ -67,6 +62,31 @@ SimpleParseQuery.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 1
 SimpleParseQuery.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).descending().findInBackground(new SimpleFindCallback<ParseGameScore>() {});
 SimpleParseQuery.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).ascending(ParseGameScore.PLAYER_AGE).findInBackground(new SimpleFindCallback<ParseGameScore>() {});
 SimpleParseQuery.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).ascending(ParseGameScore.PLAYER_NAME).addAscending(ParseGameScore.PLAYER_AGE).findInBackground(new SimpleFindCallback<ParseGameScore>() {});
+```
+
+Usage
+=====
+
+ParseGameScore.java:
+
+```java
+@ParseClassName("GameScore")
+public class ParseGameScore extends SimpleParseObject {
+    @ParseColumn
+    public int score;
+
+    @ParseColumn
+    public String playerName;
+
+    @ParseColumn
+    public boolean cheatMode;
+}
+```
+
+Application:
+
+```java
+    SimpleParseObject.registerSubclass(ParseGameScore.class);
 ```
 
 See Also
