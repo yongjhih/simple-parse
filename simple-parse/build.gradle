@@ -12,9 +12,13 @@ buildscript {
 apply plugin: 'android-sdk-manager'
 apply plugin: 'com.android.library'
 
+repositories {
+    maven { url 'https://github.com/8tory/parse-android-sdk.m2/raw/master/' }
+}
+
 dependencies {
-    compile fileTree(dir: 'src/main/libs', include: '*.jar')
     compile 'com.facebook.android:facebook-android-sdk:3.20.+'
+    compile 'com.infstory:parse:+'
 }
 
 android {
