@@ -70,6 +70,16 @@ public class ParseGameScore extends SimpleParseObject {
 }
 ```
 
+Save values via commit():
+
+```java
+ParseGameScore gameScore = new ParseGameScore();
+gameScore.score = 1337;
+gameScore.playerName = "Sean Plott";
+gameScore.cheatMode = false;
+ParseGameScore.commit().saveInBackground();
+```
+
 Application:
 
 ```java
