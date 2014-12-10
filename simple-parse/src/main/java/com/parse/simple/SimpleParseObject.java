@@ -41,6 +41,8 @@ import org.json.JSONObject;
 public class SimpleParseObject {
     private ParseObject mParseObject;
     private Class<?> mKlass;
+    private Object mFrom;
+    private ParseObject mTo;
 
     private final Map<Class<?>, String> mClassNameCache =
         new LinkedHashMap<Class<?>, String>();
@@ -64,8 +66,17 @@ public class SimpleParseObject {
         mKlass = klass;
     }
 
+    public SimpleParseObject(Object object) {
+        mFrom = object;
+        mKlass = object.getClass();
+    }
+
     public static SimpleParseObject from(Class<?> klass) {
         return new SimpleParseObject(klass);
+    }
+
+    public static SimpleParseObject from(Object object) {
+        return new SimpleParseObject(object);
     }
 
     public static class FieldInfo {
@@ -129,8 +140,22 @@ public class SimpleParseObject {
         return field.getAnnotation(ParseColumn.class).value();
     }
 
+    public void saveInBackground() {
+        saveInBackground(mFrom, mTo);
+    }
+
     public void saveInBackground(Object object) {
-        saveInBackground(object, (ParseObject) null);
+        if (mFrom == null) {
+            mFrom = object;
+        } else {
+            mTo = (ParseObject) object;
+        }
+        saveInBackground(mFrom, mTo);
+    }
+
+    public SimpleParseObject to(ParseObject to) {
+        mTo = to;
+        return this;
     }
 
     public void saveInBackground(Object from, ParseObject to) {
