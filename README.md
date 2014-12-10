@@ -18,7 +18,7 @@ ParseGameScore gameScore = new ParseGameScore();
 gameScore.score = 1337;
 gameScore.playerName = "Sean Plott";
 gameScore.cheatMode = false;
-SimpleParse.from(gameScore).saveInBackground();
+ParseGameScore.commit().saveInBackground();
 ```
 
 before:
@@ -58,7 +58,7 @@ ParseGameScore.java:
 
 ```java
 @ParseClassName("GameScore")
-public class ParseGameScore extends ParseObject {
+public class ParseGameScore extends SimpleParseObject {
     @ParseColumn
     public int score;
 
@@ -89,23 +89,20 @@ SimpleParse.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).a
 SimpleParse.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).ascending(ParseGameScore.PLAYER_NAME).addAscending(ParseGameScore.PLAYER_AGE).findInBackground(new SimpleFindCallback<ParseGameScore>() {});
 ```
 
-TODO
-====
+Bonus
+=====
 
-SimpleParse:
-
-```java
-SimpleParseQuery.from(gameScore).saveInBackground();
-```
-
-SimpleParseObject:
+Import from other non-ParseObject into ParseObject:
 
 ```java
-SimpleParseGameScore gameScore = new SimpleParseGameScore();
-gameScore.score = 1337;
-gameScore.playerName = "Sean Plott";
-gameScore.cheatMode = false;
-gameScore.saveInBackground();
+public class Profile {
+    @ParseColumn
+    public String displayName;
+}
+
+Profile profile = new Profile();
+profile.displayName = "Andrew Chen";
+SimpleParse.from(profile).saveInBackground(ParseUser.getCurrentUser());
 ```
 
 See Also
