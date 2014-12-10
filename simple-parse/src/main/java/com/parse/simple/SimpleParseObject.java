@@ -41,6 +41,11 @@ import org.json.JSONObject;
 import android.text.TextUtils;
 
 public class SimpleParseObject extends ParseObject {
+    public SimpleParseObject load() {
+        SimpleParse.load(this);
+        return this;
+    }
+
     public SimpleParseObject commit() {
         SimpleParse.commit(this);
         return this;

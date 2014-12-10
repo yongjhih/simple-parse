@@ -31,6 +31,8 @@ import java.util.List;
 import java.lang.reflect.Field;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseClassName;
 import com.parse.GetCallback;
 import com.parse.FindCallback;
@@ -38,6 +40,7 @@ import com.parse.CountCallback;
 import com.parse.ParseException;
 import org.json.JSONObject;
 import android.text.TextUtils;
+import java.util.Date;
 
 public class SimpleParse {
     private Class<?> mKlass;
@@ -140,6 +143,91 @@ public class SimpleParse {
                 }
                 else if (fieldType.equals(List.class)) {
                     to.addAll(columnName, (List) value);
+                }
+                else if (fieldType.equals(Date.class)) {
+                    to.put(columnName, (Date) value);
+                }
+                else if (fieldType.equals(ParseUser.class)) {
+                    to.put(columnName, (ParseUser) value);
+                }
+                else if (fieldType.equals(ParseGeoPoint.class)) {
+                    to.put(columnName, (ParseGeoPoint) value);
+                }
+                //else if (ReflectionUtils.isSubclassOf(fieldType, Enum.class)) {
+                    //to.put(columnName, ((Enum<?>) value).name());
+                //}
+            } catch (IllegalArgumentException e) {
+            } catch (IllegalAccessException e) {
+            }
+        }
+        return to;
+    }
+
+    public static ParseObject load(ParseObject to) {
+        return load(to, to);
+    }
+
+    public static ParseObject load(Object from, ParseObject to) {
+        for (Map.Entry<Field, String> fieldEntry : SimpleParseCache.get().getColumnFields(from.getClass()).entrySet()) {
+            final Field field = fieldEntry.getKey();
+            final String columnName = fieldEntry.getValue();
+
+            if (TextUtils.isEmpty(columnName)) continue;
+
+            Class<?> fieldType = field.getType();
+            field.setAccessible(true);
+            try {
+                Object value = field.get(from);
+
+                if (value == null) {
+                    //to.put(columnName, JSONObject.NULL);
+                    //to.remove(columnName);
+                    field.set(from, null);
+                }
+                else if (fieldType.equals(Byte.class) || fieldType.equals(byte.class)) {
+                    field.setByte(from, (byte) to.getInt(columnName));
+                }
+                else if (fieldType.equals(Short.class) || fieldType.equals(short.class)) {
+                    field.setShort(from, (short) to.getInt(columnName));
+                }
+                else if (fieldType.equals(Integer.class) || fieldType.equals(int.class)) {
+                    field.setInt(from, to.getInt(columnName));
+                }
+                else if (fieldType.equals(Long.class) || fieldType.equals(long.class)) {
+                    field.setLong(from, to.getLong(columnName));
+                }
+                else if (fieldType.equals(Float.class) || fieldType.equals(float.class)) {
+                    field.setFloat(from, (float) to.getDouble(columnName));
+                }
+                else if (fieldType.equals(Double.class) || fieldType.equals(double.class)) {
+                    field.setDouble(from, (float) to.getDouble(columnName));
+                }
+                else if (fieldType.equals(Boolean.class) || fieldType.equals(boolean.class)) {
+                    field.setBoolean(from, to.getBoolean(columnName));
+                }
+                else if (fieldType.equals(Character.class) || fieldType.equals(char.class)) {
+                    field.set(from, to.getString(columnName));
+                }
+                else if (fieldType.equals(String.class)) {
+                    field.set(from, to.getString(columnName));
+                }
+                else if (fieldType.equals(Byte[].class) || fieldType.equals(byte[].class)) {
+                    field.set(from, to.getString(columnName));
+                }
+                else if (fieldType.equals(JSONObject.class)) {
+                    field.set(from, to.getJSONObject(columnName));
+                }
+                else if (fieldType.equals(List.class)) {
+                    field.set(from, to.getList(columnName));
+                }
+                else if (fieldType.equals(Date.class)) {
+                    field.set(from, to.getDate(columnName));
+                }
+                else if (fieldType.equals(ParseUser.class)) {
+                    field.set(from, to.getParseUser(columnName));
+                }
+                else if (fieldType.equals(ParseGeoPoint.class)) {
+                    field.set(from, to.getParseGeoPoint(columnName));
                 }
                 //else if (ReflectionUtils.isSubclassOf(fieldType, Enum.class)) {
                     //to.put(columnName, ((Enum<?>) value).name());
