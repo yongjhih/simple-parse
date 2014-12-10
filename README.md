@@ -18,7 +18,7 @@ ParseGameScore gameScore = new ParseGameScore();
 gameScore.score = 1337;
 gameScore.playerName = "Sean Plott";
 gameScore.cheatMode = false;
-SimpleParseObject.from(ParseGameScore.class).saveInBackground(gameScore);
+SimpleParseObject.from(gameScore).saveInBackground();
 ```
 
 before:
@@ -51,19 +51,6 @@ SimpleParseObject.from(ParseGameScore.class).is(ParseGameScore.PLAYER_NAME, "Dan
 });
 ```
 
-other after:
-
-```java
-SimpleParseObject.from(ParseGameScore.class).isNot(ParseGameScore.PLAYER_NAME, "Michael Yabuti").findInBackground(new SimpleFindCallback<ParseGameScore>() {});
-SimpleParseObject.from(ParseGameScore.class).up(ParseGameScore.PLAYER_AGE, 18).findInBackground(new SimpleFindCallback<ParseGameScore>() {});
-SimpleParseObject.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).findInBackground(new SimpleFindCallback<ParseGameScore>() {});
-SimpleParseObject.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).limit(10).findInBackground(new SimpleFindCallback<ParseGameScore>() {});
-SimpleParseObject.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).skip(10).findInBackground(new SimpleFindCallback<ParseGameScore>() {});
-SimpleParseObject.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).descending().findInBackground(new SimpleFindCallback<ParseGameScore>() {});
-SimpleParseObject.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).ascending(ParseGameScore.PLAYER_AGE).findInBackground(new SimpleFindCallback<ParseGameScore>() {});
-SimpleParseObject.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).ascending(ParseGameScore.PLAYER_NAME).addAscending(ParseGameScore.PLAYER_AGE).findInBackground(new SimpleFindCallback<ParseGameScore>() {});
-```
-
 Usage
 =====
 
@@ -71,7 +58,7 @@ ParseGameScore.java:
 
 ```java
 @ParseClassName("GameScore")
-public class ParseGameScore extends SimpleParseObject {
+public class ParseGameScore extends ParseObject {
     @ParseColumn
     public int score;
 
@@ -86,7 +73,39 @@ public class ParseGameScore extends SimpleParseObject {
 Application:
 
 ```java
-    SimpleParseObject.registerSubclass(ParseGameScore.class);
+    ParseObject.registerSubclass(ParseGameScore.class);
+```
+
+other:
+
+```java
+SimpleParseObject.from(ParseGameScore.class).isNot(ParseGameScore.PLAYER_NAME, "Michael Yabuti").findInBackground(new SimpleFindCallback<ParseGameScore>() {});
+SimpleParseObject.from(ParseGameScore.class).up(ParseGameScore.PLAYER_AGE, 18).findInBackground(new SimpleFindCallback<ParseGameScore>() {});
+SimpleParseObject.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).findInBackground(new SimpleFindCallback<ParseGameScore>() {});
+SimpleParseObject.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).limit(10).findInBackground(new SimpleFindCallback<ParseGameScore>() {});
+SimpleParseObject.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).skip(10).findInBackground(new SimpleFindCallback<ParseGameScore>() {});
+SimpleParseObject.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).descending().findInBackground(new SimpleFindCallback<ParseGameScore>() {});
+SimpleParseObject.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).ascending(ParseGameScore.PLAYER_AGE).findInBackground(new SimpleFindCallback<ParseGameScore>() {});
+SimpleParseObject.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).ascending(ParseGameScore.PLAYER_NAME).addAscending(ParseGameScore.PLAYER_AGE).findInBackground(new SimpleFindCallback<ParseGameScore>() {});
+```
+
+TODO
+====
+
+SimpleParseQuery:
+
+```java
+SimpleParseQuery.from(gameScore).saveInBackground();
+```
+
+SimpleParseObject:
+
+```java
+SimpleParseGameScore gameScore = new SimpleParseGameScore();
+gameScore.score = 1337;
+gameScore.playerName = "Sean Plott";
+gameScore.cheatMode = false;
+gameScore.saveInBackground();
 ```
 
 See Also
