@@ -147,6 +147,9 @@ public class SimpleParse {
                 else if (fieldType.equals(Date.class)) {
                     to.put(columnName, (Date) value);
                 }
+                else if (fieldType.equals(ParseObject.class)) {
+                    to.put(columnName, (ParseObject) value);
+                }
                 else if (fieldType.equals(ParseUser.class)) {
                     to.put(columnName, (ParseUser) value);
                 }
@@ -222,6 +225,9 @@ public class SimpleParse {
                 }
                 else if (fieldType.equals(Date.class)) {
                     field.set(from, to.getDate(columnName));
+                }
+                else if (fieldType.equals(ParseObject.class)) {
+                    field.set(from, to.getParseObject(columnName));
                 }
                 else if (fieldType.equals(ParseUser.class)) {
                     field.set(from, to.getParseUser(columnName));
