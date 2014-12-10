@@ -42,8 +42,12 @@ import android.text.TextUtils;
 
 public class SimpleParseObject extends ParseObject {
     public SimpleParseObject commit() {
-        for (Field field : SimpleParseCache.get().getColumnFields(getClass())) {
-            final String columnName = SimpleParseCache.get().getColumnName(field);
+        for (Map.Entry<Field, String> fieldEntry : SimpleParseCache.get().getColumnFields(getClass()).entrySet()) {
+            final Field field = fieldEntry.getKey();
+            final String columnName = fieldEntry.getValue();
+
+            if (TextUtils.isEmpty(columnName)) continue;
+
             Class<?> fieldType = field.getType();
             field.setAccessible(true);
             try {

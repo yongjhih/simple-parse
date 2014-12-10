@@ -46,11 +46,8 @@ public class SimpleParseCache {
     public final Map<Class<?>, Map<Field, FieldInfo>> fieldInfoCache =
         new LinkedHashMap<Class<?>, Map<Field, FieldInfo>>();
 
-    public final Map<Class<?>, Set<Field>> columnFieldsCache =
-        new LinkedHashMap<Class<?>, Set<Field>>();
-
-    public final Map<Field, String> columnNameCache =
-        new LinkedHashMap<Field, String>();
+    public final Map<Class<?>, Map<Field, String>> columnFieldsCache =
+        new LinkedHashMap<Class<?>, Map<Field, String>>();
 
     private static SimpleParseCache sInstance = new SimpleParseCache();
 
@@ -85,11 +82,11 @@ public class SimpleParseCache {
         return name;
     }
 
-    public Set<Field> getColumnFields(Class<?> klass) {
-        Set<Field> columnFieldsCache = SimpleParseCache.get().columnFieldsCache.get(klass);
+    public Map<Field, String> getColumnFields(Class<?> klass) {
+        Map<Field, String> columnFieldsCache = SimpleParseCache.get().columnFieldsCache.get(klass);
         if (columnFieldsCache != null) return columnFieldsCache;
 
-        Set<Field> declaredColumnFields = new LinkedHashSet<Field>(); //Set<Field> declaredColumnFields = Collections.emptySet();
+        Map<Field, String> declaredColumnFields = new LinkedHashMap<Field, String>();
 
         Field[] fields = klass.getDeclaredFields();
         Arrays.sort(fields, new Comparator<Field>() {
@@ -101,29 +98,52 @@ public class SimpleParseCache {
         for (Field field : fields) {
             if (field.isAnnotationPresent(ParseColumn.class)) {
                 final ParseColumn parseColumn = field.getAnnotation(ParseColumn.class);
-                declaredColumnFields.add(field);
                 String name = parseColumn.value();
                 if (TextUtils.isEmpty(name)) {
                     name = field.getName();
                 }
-                SimpleParseCache.get().columnNameCache.put(field, name);
+                declaredColumnFields.put(field, name);
             }
         }
 
         Class<?> superClass = klass.getSuperclass();
         if (superClass != null) {
-            declaredColumnFields.addAll(getColumnFields(superClass));
+            declaredColumnFields.putAll(getColumnFields(superClass));
         }
 
         SimpleParseCache.get().columnFieldsCache.put(klass, declaredColumnFields);
         return declaredColumnFields;
     }
 
-    public String getColumnName(Field field) {
-        String name = SimpleParseCache.get().columnNameCache.get(field);
-        if (name != null) return name;
+    public String getColumnName(Class<?> klass, Field field) {
+        String name = null;
 
-        return field.getAnnotation(ParseColumn.class).value();
+        Map<Field, String> map = SimpleParseCache.get().columnFieldsCache.get(klass);
+
+        if (map != null) {
+            name = map.get(field);
+        }
+
+        if (!TextUtils.isEmpty(name)) {
+            return name;
+        }
+
+        try {
+            name = field.getAnnotation(ParseColumn.class).value();
+
+            if (!TextUtils.isEmpty(name)) {
+                return name;
+            }
+
+            name = field.getName();
+
+        } finally {
+            if (map != null) {
+                map.put(field, name);
+                SimpleParseCache.get().columnFieldsCache.put(klass, map);
+            }
+        }
+
+        return name;
     }
-
 }
