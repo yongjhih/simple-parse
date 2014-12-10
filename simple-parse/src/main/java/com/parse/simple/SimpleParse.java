@@ -47,7 +47,7 @@ public class SimpleParse {
     private Object mFrom;
     private ParseObject mTo;
 
-    private ParseQuery<ParseObject> mQuery;
+    private ParseQuery mQuery;
     private String mObjectId;
 
     private SimpleParse() {
@@ -472,7 +472,7 @@ public class SimpleParse {
     }
     */
 
-    public ParseQuery<ParseObject> getQuery() {
+    public <T extends ParseObject> ParseQuery<T> getQuery() {
         if (mQuery == null) {
             mQuery = ParseQuery.getQuery(SimpleParseCache.get().getClassName(mKlass));
         }
