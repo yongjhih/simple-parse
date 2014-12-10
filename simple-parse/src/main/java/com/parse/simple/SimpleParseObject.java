@@ -42,61 +42,7 @@ import android.text.TextUtils;
 
 public class SimpleParseObject extends ParseObject {
     public SimpleParseObject commit() {
-        for (Map.Entry<Field, String> fieldEntry : SimpleParseCache.get().getColumnFields(getClass()).entrySet()) {
-            final Field field = fieldEntry.getKey();
-            final String columnName = fieldEntry.getValue();
-
-            if (TextUtils.isEmpty(columnName)) continue;
-
-            Class<?> fieldType = field.getType();
-            field.setAccessible(true);
-            try {
-                Object value = field.get(this);
-
-                if (value == null) {
-                    put(columnName, JSONObject.NULL);
-                    //remove(columnName);
-                }
-                else if (fieldType.equals(Byte.class) || fieldType.equals(byte.class)) {
-                    put(columnName, (Byte) value);
-                }
-                else if (fieldType.equals(Short.class) || fieldType.equals(short.class)) {
-                    put(columnName, (Short) value);
-                }
-                else if (fieldType.equals(Integer.class) || fieldType.equals(int.class)) {
-                    put(columnName, (Integer) value);
-                }
-                else if (fieldType.equals(Long.class) || fieldType.equals(long.class)) {
-                    put(columnName, (Long) value);
-                }
-                else if (fieldType.equals(Float.class) || fieldType.equals(float.class)) {
-                    put(columnName, (Float) value);
-                }
-                else if (fieldType.equals(Double.class) || fieldType.equals(double.class)) {
-                    put(columnName, (Double) value);
-                }
-                else if (fieldType.equals(Boolean.class) || fieldType.equals(boolean.class)) {
-                    put(columnName, (Boolean) value);
-                }
-                else if (fieldType.equals(Character.class) || fieldType.equals(char.class)) {
-                    put(columnName, value.toString());
-                }
-                else if (fieldType.equals(String.class)) {
-                    put(columnName, value.toString());
-                }
-                else if (fieldType.equals(Byte[].class) || fieldType.equals(byte[].class)) {
-                    put(columnName, (byte[]) value);
-                }
-                else if (fieldType.equals(JSONObject.class)) {
-                    put(columnName, (JSONObject) value);
-                }
-                //else if (ReflectionUtils.isSubclassOf(fieldType, Enum.class)) {
-                    //put(columnName, ((Enum<?>) value).name());
-                //}
-            } catch (IllegalArgumentException e) {
-            } catch (IllegalAccessException e) {
-            }
-        }
+        SimpleParse.commit(this);
         return this;
     }
 }

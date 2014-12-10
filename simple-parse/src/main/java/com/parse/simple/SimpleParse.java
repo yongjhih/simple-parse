@@ -40,7 +40,6 @@ import org.json.JSONObject;
 import android.text.TextUtils;
 
 public class SimpleParse {
-    private ParseObject mParseObject;
     private Class<?> mKlass;
     private Object mFrom;
     private ParseObject mTo;
@@ -86,12 +85,12 @@ public class SimpleParse {
         return this;
     }
 
-    public void saveInBackground(Object from, ParseObject to) {
-        if (to == null) {
-            mParseObject = new ParseObject(SimpleParseCache.get().getClassName(mKlass));
-            to = mParseObject;
-        }
-        for (Map.Entry<Field, String> fieldEntry : SimpleParseCache.get().getColumnFields(getClass()).entrySet()) {
+    public static ParseObject commit(ParseObject from) {
+        return commit(from, from);
+    }
+
+    public static ParseObject commit(Object from, ParseObject to) {
+        for (Map.Entry<Field, String> fieldEntry : SimpleParseCache.get().getColumnFields(from.getClass()).entrySet()) {
             final Field field = fieldEntry.getKey();
             final String columnName = fieldEntry.getValue();
 
@@ -139,6 +138,9 @@ public class SimpleParse {
                 else if (fieldType.equals(JSONObject.class)) {
                     to.put(columnName, (JSONObject) value);
                 }
+                else if (fieldType.equals(List.class)) {
+                    to.addAll(columnName, (List) value);
+                }
                 //else if (ReflectionUtils.isSubclassOf(fieldType, Enum.class)) {
                     //to.put(columnName, ((Enum<?>) value).name());
                 //}
@@ -146,6 +148,14 @@ public class SimpleParse {
             } catch (IllegalAccessException e) {
             }
         }
+        return to;
+    }
+
+    public void saveInBackground(Object from, ParseObject to) {
+        if (to == null) {
+            to = new ParseObject(SimpleParseCache.get().getClassName(mKlass));
+        }
+        commit(from, to);
         to.saveInBackground();
     }
 
