@@ -166,11 +166,11 @@ public class SimpleParse {
         return to;
     }
 
-    public static ParseObject load(ParseObject to) {
+    public static Object load(ParseObject to) {
         return load(to, to);
     }
 
-    public static ParseObject load(Object from, ParseObject to) {
+    public static Object load(Object from, ParseObject to) {
         for (Map.Entry<Field, String> fieldEntry : SimpleParseCache.get().getColumnFields(from.getClass()).entrySet()) {
             final Field field = fieldEntry.getKey();
             final String columnName = fieldEntry.getValue();
@@ -242,7 +242,7 @@ public class SimpleParse {
             } catch (IllegalAccessException e) {
             }
         }
-        return to;
+        return from;
     }
 
     public void saveInBackground(Object from, ParseObject to) {
