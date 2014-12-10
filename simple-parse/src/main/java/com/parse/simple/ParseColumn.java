@@ -24,5 +24,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @ParseObjectMethod("COLUMN")
 public @interface ParseColumn {
-    String value();
+    String value() default "";
 }
