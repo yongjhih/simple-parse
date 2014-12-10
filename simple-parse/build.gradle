@@ -22,11 +22,11 @@ dependencies {
 }
 
 android {
-    buildToolsVersion "21.1.0"
+    buildToolsVersion "21.1.1"
     compileSdkVersion 21
 
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion 9
         targetSdkVersion 21
         versionCode = Integer.parseInt(VERSION_CODE)
         versionName = VERSION_NAME
