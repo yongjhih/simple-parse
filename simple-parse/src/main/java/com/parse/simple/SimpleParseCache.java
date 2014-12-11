@@ -43,8 +43,8 @@ public class SimpleParseCache {
     public final Map<Class<?>, String> classNameCache =
         new LinkedHashMap<Class<?>, String>();
 
-    public final Map<Class<? extends Serializer>, Serializer> serializersCache =
-        new LinkedHashMap<Class<? extends Serializer>, Serializer>();
+    public final Map<Class<? extends Filter>, Filter> filtersCache =
+        new LinkedHashMap<Class<? extends Filter>, Filter>();
 
     public final Map<Class<?>, Object> objectsCache =
         new LinkedHashMap<Class<?>, Object>();
@@ -165,12 +165,12 @@ public class SimpleParseCache {
         return object;
     }
 
-    public Serializer getSerializerInstance(Class<? extends Serializer> klass) {
-        Serializer serializer = serializersCache.get(klass);
+    public Filter getFilterInstance(Class<? extends Filter> klass) {
+        Filter filter = filtersCache.get(klass);
 
-        if (serializer == null) {
+        if (filter == null) {
             try {
-                serializer = (Serializer) klass.newInstance();
+                filter = (Filter) klass.newInstance();
             } catch (InstantiationException e) {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
@@ -178,6 +178,6 @@ public class SimpleParseCache {
             }
         }
 
-        return serializer;
+        return filter;
     }
 }

@@ -27,9 +27,10 @@ public @interface ParseColumn {
     String value() default "";
     String prefix() default "";
     String suffix() default "";
-    Class<? extends Serializer> serializer() default NullSerializer.class;
+    Class<? extends Filter> filter() default NullFilter.class;
     Class<?> prefixClass() default Object.class;
     Class<?> suffixClass() default Object.class;
+    boolean self() default false;
     //boolean objectId() default false;
     //boolean remove() default false;
     //String equals() default "";

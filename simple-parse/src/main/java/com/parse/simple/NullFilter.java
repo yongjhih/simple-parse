@@ -16,14 +16,5 @@
 
 package com.parse.simple;
 
-public class SimpleSerializer implements Serializer<Object, Object> {
-    @Override
-    public Object serialize(Object data) {
-        return data;
-    }
-
-    @Override
-    public Object deserialize(Object data) {
-        return data;
-    }
+public interface NullFilter<T, E> extends Filter<T, E> {
 }
