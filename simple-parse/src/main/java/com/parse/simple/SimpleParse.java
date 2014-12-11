@@ -473,10 +473,21 @@ public class SimpleParse {
     */
 
     public <T extends ParseObject> ParseQuery<T> getQuery() {
-        if (mQuery == null) {
-            mQuery = ParseQuery.getQuery(SimpleParseCache.get().getClassName(mKlass));
+        if (!(mKlass.isAssignableFrom(ParseObject.class))) {
+            return null;
         }
+
+        Class<? extends ParseObject> klass = (Class<? extends ParseObject>) mKlass;
+
+        if (mQuery == null) {
+            mQuery = ParseQuery.getQuery(klass);
+        }
+
         return mQuery;
+    }
+
+    public static <T extends ParseObject> ParseQuery<T> getQuery(Class<T> klass) {
+        return from(klass).getQuery();
     }
 
     private void get(GetCallback<ParseObject> getCallback) {
