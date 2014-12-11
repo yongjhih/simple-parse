@@ -134,7 +134,20 @@ public class SimpleParse {
                     to.put(columnName, value.toString());
                 }
                 else if (fieldType.equals(String.class)) {
-                    to.put(columnName, value.toString());
+                    String valueString = value.toString();
+                    String prefix = column.prefix();
+                    String suffix = column.suffix();
+
+                    if (!TextUtils.isEmpty(prefix) && valueString.startsWith(prefix)) {
+                        //valueString.replace(prefix, "");
+                        valueString = valueString.substring(prefix.length(), valueString.length());
+                    }
+
+                    if (!TextUtils.isEmpty(suffix) && valueString.endsWith(suffix)) {
+                        valueString = valueString.substring(0, valueString.length() - suffix.length());
+                    }
+
+                    to.put(columnName, valueString);
                 }
                 else if (fieldType.equals(Byte[].class) || fieldType.equals(byte[].class)) {
                     to.put(columnName, (byte[]) value);
@@ -207,7 +220,13 @@ public class SimpleParse {
                     field.set(from, to.getString(columnName));
                 }
                 else if (fieldType.equals(String.class)) {
-                    field.set(from, to.getString(columnName));
+                    String value = to.getString(columnName);
+                    String prefix = column.prefix();
+                    String suffix = column.suffix();
+
+                    value = prefix + value + suffix;
+
+                    field.set(from, value);
                 }
                 else if (fieldType.equals(Byte[].class) || fieldType.equals(byte[].class)) {
                     field.set(from, to.getString(columnName));
