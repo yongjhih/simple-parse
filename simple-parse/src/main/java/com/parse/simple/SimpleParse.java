@@ -180,14 +180,7 @@ public class SimpleParse {
             Class<?> fieldType = field.getType();
             field.setAccessible(true);
             try {
-                Object value = field.get(from);
-
-                if (value == null) {
-                    //to.put(columnName, JSONObject.NULL);
-                    //to.remove(columnName);
-                    field.set(from, null);
-                }
-                else if (fieldType.equals(Byte.class) || fieldType.equals(byte.class)) {
+                if (fieldType.equals(Byte.class) || fieldType.equals(byte.class)) {
                     field.setByte(from, (byte) to.getInt(columnName));
                 }
                 else if (fieldType.equals(Short.class) || fieldType.equals(short.class)) {
@@ -242,7 +235,7 @@ public class SimpleParse {
             } catch (IllegalAccessException e) {
             }
         }
-        return (T) from;
+        return from;
     }
 
     public void saveInBackground(Object from, ParseObject to) {
