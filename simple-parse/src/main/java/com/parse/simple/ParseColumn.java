@@ -25,4 +25,9 @@ import java.lang.annotation.Target;
 @ParseObjectMethod("COLUMN")
 public @interface ParseColumn {
     String value() default "";
+    String prefix() default "";
+    String suffix() default "";
+    //boolean remove() default false;
+    //String equals() default "";
+    //String contains() default "";
 }
