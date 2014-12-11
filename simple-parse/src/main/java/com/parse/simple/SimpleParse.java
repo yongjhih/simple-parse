@@ -138,6 +138,22 @@ public class SimpleParse {
                     String prefix = column.prefix();
                     String suffix = column.suffix();
 
+                    Class<?> prefixClass = column.prefixClass();
+                    if (!Object.class.equals(prefixClass)) {
+                        try {
+                            prefix = ((IStringValue) prefixClass.newInstance()).value();
+                        } catch (InstantiationException e) {
+                        }
+                    }
+
+                    Class<?> suffixClass = column.suffixClass();
+                    if (!Object.class.equals(suffixClass)) {
+                        try {
+                            suffix = ((IStringValue) suffixClass.newInstance()).value();
+                        } catch (InstantiationException e) {
+                        }
+                    }
+
                     if (!TextUtils.isEmpty(prefix) && valueString.startsWith(prefix)) {
                         //valueString.replace(prefix, "");
                         valueString = valueString.substring(prefix.length(), valueString.length());
@@ -147,7 +163,11 @@ public class SimpleParse {
                         valueString = valueString.substring(0, valueString.length() - suffix.length());
                     }
 
-                    to.put(columnName, valueString);
+                    if (SimpleParseObject.OBJECT_ID.equals(columnName)) {
+                        to.setObjectId(valueString);
+                    } else {
+                        to.put(columnName, valueString);
+                    }
                 }
                 else if (fieldType.equals(Byte[].class) || fieldType.equals(byte[].class)) {
                     to.put(columnName, (byte[]) value);
@@ -220,9 +240,31 @@ public class SimpleParse {
                     field.set(from, to.getString(columnName));
                 }
                 else if (fieldType.equals(String.class)) {
-                    String value = to.getString(columnName);
+                    String value = null;
+
+                    if (SimpleParseObject.OBJECT_ID.equals(columnName)) {
+                        value = to.getObjectId();
+                    } else {
+                        value = to.getString(columnName);
+                    }
+
                     String prefix = column.prefix();
+                    Class<?> prefixClass = column.prefixClass();
+                    if (!Object.class.equals(prefixClass)) {
+                        try {
+                            prefix = ((IStringValue) prefixClass.newInstance()).value();
+                        } catch (InstantiationException e) {
+                        }
+                    }
+
                     String suffix = column.suffix();
+                    Class<?> suffixClass = column.suffixClass();
+                    if (!Object.class.equals(suffixClass)) {
+                        try {
+                            suffix = ((IStringValue) suffixClass.newInstance()).value();
+                        } catch (InstantiationException e) {
+                        }
+                    }
 
                     value = prefix + value + suffix;
 

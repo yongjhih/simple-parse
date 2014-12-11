@@ -27,6 +27,9 @@ public @interface ParseColumn {
     String value() default "";
     String prefix() default "";
     String suffix() default "";
+    Class<?> prefixClass() default Object.class;
+    Class<?> suffixClass() default Object.class;
+    //boolean objectId() default false;
     //boolean remove() default false;
     //String equals() default "";
     //String contains() default "";
