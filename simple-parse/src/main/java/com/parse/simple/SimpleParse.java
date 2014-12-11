@@ -180,14 +180,14 @@ public class SimpleParse {
                 else if (fieldType.equals(Date.class)) {
                     to.put(columnName, (Date) value);
                 }
-                else if (fieldType.equals(ParseObject.class)) {
-                    to.put(columnName, (ParseObject) value);
-                }
                 else if (fieldType.equals(ParseUser.class)) {
                     to.put(columnName, (ParseUser) value);
                 }
                 else if (fieldType.equals(ParseGeoPoint.class)) {
                     to.put(columnName, (ParseGeoPoint) value);
+                }
+                else if (fieldType.equals(ParseObject.class)) {
+                    to.put(columnName, (ParseObject) value);
                 }
                 //else if (ReflectionUtils.isSubclassOf(fieldType, Enum.class)) {
                     //to.put(columnName, ((Enum<?>) value).name());
@@ -216,7 +216,15 @@ public class SimpleParse {
             try {
                 Class<? extends Filter> filter = column.filter();
 
-                if (fieldType.equals(Byte.class) || fieldType.equals(byte.class)) {
+                if (column.self() && fieldType.isAssignableFrom(ParseObject.class)) {
+                    ParseObject value = (ParseObject) to;
+                    if (!NullFilter.class.equals(filter)) {
+                        value = (ParseObject) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                    }
+
+                    field.set(from, value);
+                }
+                else if (fieldType.equals(Byte.class) || fieldType.equals(byte.class)) {
                     byte value = (byte) to.getInt(columnName);
                     if (!NullFilter.class.equals(filter)) {
                         value = (byte) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
@@ -341,14 +349,6 @@ public class SimpleParse {
 
                     field.set(from, value);
                 }
-                else if (fieldType.equals(ParseObject.class)) {
-                    ParseObject value = to.getParseObject(columnName);
-                    if (!NullFilter.class.equals(filter)) {
-                        value = (ParseObject) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
-                    }
-
-                    field.set(from, value);
-                }
                 else if (fieldType.equals(ParseUser.class)) {
                     ParseUser value = to.getParseUser(columnName);
                     if (!NullFilter.class.equals(filter)) {
@@ -361,6 +361,14 @@ public class SimpleParse {
                     ParseGeoPoint value = to.getParseGeoPoint(columnName);
                     if (!NullFilter.class.equals(filter)) {
                         value = (ParseGeoPoint) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                    }
+
+                    field.set(from, value);
+                }
+                else if (fieldType.equals(ParseObject.class)) {
+                    ParseObject value = to.getParseObject(columnName);
+                    if (!NullFilter.class.equals(filter)) {
+                        value = (ParseObject) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
                     }
 
                     field.set(from, value);
