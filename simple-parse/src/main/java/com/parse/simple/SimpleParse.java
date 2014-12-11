@@ -105,6 +105,11 @@ public class SimpleParse {
             try {
                 Object value = field.get(from);
 
+                Class<? extends Serializer> serializer = column.serializer();
+                if (!NullSerializer.class.equals(serializer)) {
+                    value = SimpleParseCache.get().getSerializerInstance(serializer).serialize(value);
+                }
+
                 if (value == null) {
                     to.put(columnName, JSONObject.NULL);
                     //to.remove(columnName);
@@ -140,18 +145,12 @@ public class SimpleParse {
 
                     Class<?> prefixClass = column.prefixClass();
                     if (!Object.class.equals(prefixClass)) {
-                        try {
-                            prefix = ((IStringValue) prefixClass.newInstance()).value();
-                        } catch (InstantiationException e) {
-                        }
+                        prefix = ((IStringValue) SimpleParseCache.get().getObject(prefixClass)).value();
                     }
 
                     Class<?> suffixClass = column.suffixClass();
                     if (!Object.class.equals(suffixClass)) {
-                        try {
-                            suffix = ((IStringValue) suffixClass.newInstance()).value();
-                        } catch (InstantiationException e) {
-                        }
+                        suffix = ((IStringValue) SimpleParseCache.get().getObject(suffixClass)).value();
                     }
 
                     if (!TextUtils.isEmpty(prefix) && valueString.startsWith(prefix)) {
@@ -215,29 +214,71 @@ public class SimpleParse {
             Class<?> fieldType = field.getType();
             field.setAccessible(true);
             try {
+                Class<? extends Serializer> serializer = column.serializer();
+
                 if (fieldType.equals(Byte.class) || fieldType.equals(byte.class)) {
-                    field.setByte(from, (byte) to.getInt(columnName));
+                    byte value = (byte) to.getInt(columnName);
+                    if (!NullSerializer.class.equals(serializer)) {
+                        value = (byte) SimpleParseCache.get().getSerializerInstance(serializer).deserialize(value);
+                    }
+
+                    field.setByte(from, value);
                 }
                 else if (fieldType.equals(Short.class) || fieldType.equals(short.class)) {
-                    field.setShort(from, (short) to.getInt(columnName));
+                    short value = (short) to.getInt(columnName);
+                    if (!NullSerializer.class.equals(serializer)) {
+                        value = (short) SimpleParseCache.get().getSerializerInstance(serializer).deserialize(value);
+                    }
+
+                    field.setShort(from, value);
                 }
                 else if (fieldType.equals(Integer.class) || fieldType.equals(int.class)) {
-                    field.setInt(from, to.getInt(columnName));
+                    int value = to.getInt(columnName);
+                    if (!NullSerializer.class.equals(serializer)) {
+                        value = (int) SimpleParseCache.get().getSerializerInstance(serializer).deserialize(value);
+                    }
+
+                    field.setInt(from, value);
                 }
                 else if (fieldType.equals(Long.class) || fieldType.equals(long.class)) {
-                    field.setLong(from, to.getLong(columnName));
+                    long value = to.getLong(columnName);
+                    if (!NullSerializer.class.equals(serializer)) {
+                        value = (long) SimpleParseCache.get().getSerializerInstance(serializer).deserialize(value);
+                    }
+
+                    field.setLong(from, value);
                 }
                 else if (fieldType.equals(Float.class) || fieldType.equals(float.class)) {
-                    field.setFloat(from, (float) to.getDouble(columnName));
+                    float value = (float) to.getDouble(columnName);
+                    if (!NullSerializer.class.equals(serializer)) {
+                        value = (float) SimpleParseCache.get().getSerializerInstance(serializer).deserialize(value);
+                    }
+
+                    field.setFloat(from, value);
                 }
                 else if (fieldType.equals(Double.class) || fieldType.equals(double.class)) {
-                    field.setDouble(from, (float) to.getDouble(columnName));
+                    double value = to.getDouble(columnName);
+                    if (!NullSerializer.class.equals(serializer)) {
+                        value = (double) SimpleParseCache.get().getSerializerInstance(serializer).deserialize(value);
+                    }
+
+                    field.setDouble(from, value);
                 }
                 else if (fieldType.equals(Boolean.class) || fieldType.equals(boolean.class)) {
-                    field.setBoolean(from, to.getBoolean(columnName));
+                    boolean value = to.getBoolean(columnName);
+                    if (!NullSerializer.class.equals(serializer)) {
+                        value = (boolean) SimpleParseCache.get().getSerializerInstance(serializer).deserialize(value);
+                    }
+
+                    field.setBoolean(from, value);
                 }
                 else if (fieldType.equals(Character.class) || fieldType.equals(char.class)) {
-                    field.set(from, to.getString(columnName));
+                    String value = to.getString(columnName);
+                    if (!NullSerializer.class.equals(serializer)) {
+                        value = (String) SimpleParseCache.get().getSerializerInstance(serializer).deserialize(value);
+                    }
+
+                    field.set(from, value);
                 }
                 else if (fieldType.equals(String.class)) {
                     String value = null;
@@ -248,22 +289,20 @@ public class SimpleParse {
                         value = to.getString(columnName);
                     }
 
+                    if (!NullSerializer.class.equals(serializer)) {
+                        value = (String) SimpleParseCache.get().getSerializerInstance(serializer).deserialize(value);
+                    }
+
                     String prefix = column.prefix();
                     Class<?> prefixClass = column.prefixClass();
                     if (!Object.class.equals(prefixClass)) {
-                        try {
-                            prefix = ((IStringValue) prefixClass.newInstance()).value();
-                        } catch (InstantiationException e) {
-                        }
+                        prefix = ((IStringValue) SimpleParseCache.get().getObject(prefixClass)).value();
                     }
 
                     String suffix = column.suffix();
                     Class<?> suffixClass = column.suffixClass();
                     if (!Object.class.equals(suffixClass)) {
-                        try {
-                            suffix = ((IStringValue) suffixClass.newInstance()).value();
-                        } catch (InstantiationException e) {
-                        }
+                        suffix = ((IStringValue) SimpleParseCache.get().getObject(suffixClass)).value();
                     }
 
                     value = prefix + value + suffix;
@@ -271,25 +310,60 @@ public class SimpleParse {
                     field.set(from, value);
                 }
                 else if (fieldType.equals(Byte[].class) || fieldType.equals(byte[].class)) {
-                    field.set(from, to.getString(columnName));
+                    String value = to.getString(columnName);
+                    if (!NullSerializer.class.equals(serializer)) {
+                        value = (String) SimpleParseCache.get().getSerializerInstance(serializer).deserialize(value);
+                    }
+
+                    field.set(from, value);
                 }
                 else if (fieldType.equals(JSONObject.class)) {
-                    field.set(from, to.getJSONObject(columnName));
+                    JSONObject value = to.getJSONObject(columnName);
+                    if (!NullSerializer.class.equals(serializer)) {
+                        value = (JSONObject) SimpleParseCache.get().getSerializerInstance(serializer).deserialize(value);
+                    }
+
+                    field.set(from, value);
                 }
                 else if (fieldType.equals(List.class)) {
-                    field.set(from, to.getList(columnName));
+                    List value = to.getList(columnName);
+                    if (!NullSerializer.class.equals(serializer)) {
+                        value = (List) SimpleParseCache.get().getSerializerInstance(serializer).deserialize(value);
+                    }
+
+                    field.set(from, value);
                 }
                 else if (fieldType.equals(Date.class)) {
-                    field.set(from, to.getDate(columnName));
+                    Date value = to.getDate(columnName);
+                    if (!NullSerializer.class.equals(serializer)) {
+                        value = (Date) SimpleParseCache.get().getSerializerInstance(serializer).deserialize(value);
+                    }
+
+                    field.set(from, value);
                 }
                 else if (fieldType.equals(ParseObject.class)) {
-                    field.set(from, to.getParseObject(columnName));
+                    ParseObject value = to.getParseObject(columnName);
+                    if (!NullSerializer.class.equals(serializer)) {
+                        value = (ParseObject) SimpleParseCache.get().getSerializerInstance(serializer).deserialize(value);
+                    }
+
+                    field.set(from, value);
                 }
                 else if (fieldType.equals(ParseUser.class)) {
-                    field.set(from, to.getParseUser(columnName));
+                    ParseUser value = to.getParseUser(columnName);
+                    if (!NullSerializer.class.equals(serializer)) {
+                        value = (ParseUser) SimpleParseCache.get().getSerializerInstance(serializer).deserialize(value);
+                    }
+
+                    field.set(from, value);
                 }
                 else if (fieldType.equals(ParseGeoPoint.class)) {
-                    field.set(from, to.getParseGeoPoint(columnName));
+                    ParseGeoPoint value = to.getParseGeoPoint(columnName);
+                    if (!NullSerializer.class.equals(serializer)) {
+                        value = (ParseGeoPoint) SimpleParseCache.get().getSerializerInstance(serializer).deserialize(value);
+                    }
+
+                    field.set(from, value);
                 }
                 //else if (ReflectionUtils.isSubclassOf(fieldType, Enum.class)) {
                     //to.put(columnName, ((Enum<?>) value).name());
