@@ -38,16 +38,28 @@ import com.parse.CountCallback;
 import com.parse.ParseException;
 import org.json.JSONObject;
 import android.text.TextUtils;
+import android.support.v4.util.LruCache;
+import android.os.Bundle;
 
 public class SimpleParseCache {
-    public final Map<Class<?>, String> classNameCache =
-        new LinkedHashMap<Class<?>, String>();
+    public static final int CLASS_CACHE_SIZE = 32;
+    //public static final int FIELD_CACHE_SIZE = 32; // Disabled, We cannot confirm fields that is compeleted or not to return.
+    public static final int FILTER_CACHE_SIZE = 32;
 
-    public final Map<Class<?>, Map<Field, FieldInfo>> fieldInfoCache =
-        new LinkedHashMap<Class<?>, Map<Field, FieldInfo>>();
+    public final LruCache<Class<?>, String> classNameCache =
+        new LruCache<Class<?>, String>(CLASS_CACHE_SIZE);
 
-    public final Map<Class<?>, Map<SimpleField, SimpleParseColumn>> columnFieldsCache =
-        new LinkedHashMap<Class<?>, Map<SimpleField, SimpleParseColumn>>();
+    public final LruCache<Class<? extends Filter>, Filter> filtersCache =
+        new LruCache<Class<? extends Filter>, Filter>(FILTER_CACHE_SIZE);
+
+    public final LruCache<Class<?>, Object> objectsCache =
+        new LruCache<Class<?>, Object>(CLASS_CACHE_SIZE);
+
+    public final LruCache<Class<?>, Map<SimpleField, SimpleParseColumn>> columnFieldsCache =
+        new LruCache<Class<?>, Map<SimpleField, SimpleParseColumn>>(CLASS_CACHE_SIZE);
+
+    public final Map<String, Bundle> columnDataCache =
+        new LinkedHashMap<String, Bundle>();
 
     private static SimpleParseCache sInstance = new SimpleParseCache();
 
@@ -56,10 +68,6 @@ public class SimpleParseCache {
 
     public static SimpleParseCache get() {
         return sInstance;
-    }
-
-    public static class FieldInfo {
-        public String name;
     }
 
     public String getClassName(Class<?> klass) {
@@ -144,5 +152,37 @@ public class SimpleParseCache {
         }
 
         return name;
+    }
+
+    public Object getObject(Class<?> klass) {
+        Object object = objectsCache.get(klass);
+
+        if (object == null) {
+            try {
+                object = (Object) klass.newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return object;
+    }
+
+    public Filter getFilter(Class<? extends Filter> klass) {
+        Filter filter = filtersCache.get(klass);
+
+        if (filter == null) {
+            try {
+                filter = (Filter) klass.newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return filter;
     }
 }
