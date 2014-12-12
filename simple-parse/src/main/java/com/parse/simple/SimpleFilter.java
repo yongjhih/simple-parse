@@ -18,12 +18,22 @@ package com.parse.simple;
 
 public class SimpleFilter implements Filter<Object, Object> {
     @Override
-    public Object serialize(Object data) {
-        return data;
+    public Class<Object> getSerializeType() {
+        return Object.class;
     }
 
     @Override
-    public Object deserialize(Object data) {
-        return data;
+    public Class<Object> getDeserializeType() {
+        return Object.class;
+    }
+
+    @Override
+    public Object serialize(Object value) {
+        return value;
+    }
+
+    @Override
+    public Object deserialize(Object value) {
+        return value;
     }
 }
