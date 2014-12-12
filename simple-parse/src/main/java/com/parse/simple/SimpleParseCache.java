@@ -46,8 +46,8 @@ public class SimpleParseCache {
     public final Map<Class<?>, Map<Field, FieldInfo>> fieldInfoCache =
         new LinkedHashMap<Class<?>, Map<Field, FieldInfo>>();
 
-    public final Map<Class<?>, Map<Field, SimpleParseColumn>> columnFieldsCache =
-        new LinkedHashMap<Class<?>, Map<Field, SimpleParseColumn>>();
+    public final Map<Class<?>, Map<SimpleField, SimpleParseColumn>> columnFieldsCache =
+        new LinkedHashMap<Class<?>, Map<SimpleField, SimpleParseColumn>>();
 
     private static SimpleParseCache sInstance = new SimpleParseCache();
 
@@ -82,11 +82,11 @@ public class SimpleParseCache {
         return name;
     }
 
-    public Map<Field, SimpleParseColumn> getColumnFields(Class<?> klass) {
-        Map<Field, SimpleParseColumn> columnFieldsCache = SimpleParseCache.get().columnFieldsCache.get(klass);
+    public Map<SimpleField, SimpleParseColumn> getColumnFields(Class<?> klass) {
+        Map<SimpleField, SimpleParseColumn> columnFieldsCache = SimpleParseCache.get().columnFieldsCache.get(klass);
         if (columnFieldsCache != null) return columnFieldsCache;
 
-        Map<Field, SimpleParseColumn> declaredColumnFields = new LinkedHashMap<Field, SimpleParseColumn>();
+        Map<SimpleField, SimpleParseColumn> declaredColumnFields = new LinkedHashMap<SimpleField, SimpleParseColumn>();
 
         Field[] fields = klass.getDeclaredFields();
         Arrays.sort(fields, new Comparator<Field>() {
@@ -97,7 +97,7 @@ public class SimpleParseCache {
         });
         for (Field field : fields) {
             if (field.isAnnotationPresent(ParseColumn.class)) {
-                declaredColumnFields.put(field, new SimpleParseColumn(field.getAnnotation(ParseColumn.class)));
+                declaredColumnFields.put(new SimpleField(field), new SimpleParseColumn(field.getAnnotation(ParseColumn.class)));
             }
         }
 
@@ -110,7 +110,7 @@ public class SimpleParseCache {
         return declaredColumnFields;
     }
 
-    public String getColumnName(Field field, SimpleParseColumn column) {
+    public String getColumnName(SimpleField field, SimpleParseColumn column) {
             String name = column.value();
 
             if (!TextUtils.isEmpty(name)) {
@@ -122,10 +122,10 @@ public class SimpleParseCache {
             return name;
     }
 
-    public String getColumnName(Class<?> klass, Field field) {
+    public String getColumnName(Class<?> klass, SimpleField field) {
         String name = null;
 
-        Map<Field, SimpleParseColumn> map = SimpleParseCache.get().columnFieldsCache.get(klass);
+        Map<SimpleField, SimpleParseColumn> map = SimpleParseCache.get().columnFieldsCache.get(klass);
 
         if (map != null) {
             name = getColumnName(field, map.get(field));

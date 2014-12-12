@@ -93,15 +93,14 @@ public class SimpleParse {
     }
 
     public static ParseObject commit(Object from, ParseObject to) {
-        for (Map.Entry<Field, SimpleParseColumn> fieldEntry : SimpleParseCache.get().getColumnFields(from.getClass()).entrySet()) {
-            final Field field = fieldEntry.getKey();
+        for (Map.Entry<SimpleField, SimpleParseColumn> fieldEntry : SimpleParseCache.get().getColumnFields(from.getClass()).entrySet()) {
+            final SimpleField field = fieldEntry.getKey();
             final SimpleParseColumn column = fieldEntry.getValue();
             final String columnName = SimpleParseCache.get().getColumnName(field, column);
 
             if (TextUtils.isEmpty(columnName)) continue;
 
             Class<?> fieldType = field.getType();
-            field.setAccessible(true);
             try {
                 Object value = field.get(from);
 
@@ -172,8 +171,8 @@ public class SimpleParse {
     }
 
     public static <T> T load(T from, ParseObject to) {
-        for (Map.Entry<Field, SimpleParseColumn> fieldEntry : SimpleParseCache.get().getColumnFields(from.getClass()).entrySet()) {
-            final Field field = fieldEntry.getKey();
+        for (Map.Entry<SimpleField, SimpleParseColumn> fieldEntry : SimpleParseCache.get().getColumnFields(from.getClass()).entrySet()) {
+            final SimpleField field = fieldEntry.getKey();
             final SimpleParseColumn column = fieldEntry.getValue();
             final String columnName = SimpleParseCache.get().getColumnName(field, column);
 
