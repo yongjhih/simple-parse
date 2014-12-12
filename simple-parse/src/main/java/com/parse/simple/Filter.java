@@ -20,8 +20,8 @@ import android.os.Bundle;
 import com.parse.ParseObject;
 
 public interface Filter<F, T> {
-    Class<F> getSaveType();
-    Class<T> getLoadType();
-    T onSave(T value, Bundle icicle, Object from, ParseObject to);
-    F onLoad(F value, Bundle icicle, Object from, ParseObject to);
+    Class<T> getSaveType();
+    Class<F> getLoadType();
+    T onSave(F value, Bundle icicle, Object from, ParseObject to);
+    F onLoad(T value, Bundle icicle, Object from, ParseObject to);
 }
