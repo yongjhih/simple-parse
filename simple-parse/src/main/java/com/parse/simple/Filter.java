@@ -17,8 +17,8 @@
 package com.parse.simple;
 
 public interface Filter<T, E> {
-    Class<E> getSerializeType();
-    Class<T> getDeserializeType();
-    E serialize(T value);
-    T deserialize(E value);
+    Class<E> getSaveType();
+    Class<T> getLoadType();
+    E onSave(T value);
+    T onLoad(E value);
 }

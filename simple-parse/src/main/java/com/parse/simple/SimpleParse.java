@@ -107,7 +107,7 @@ public class SimpleParse {
 
                 Class<? extends Filter> filter = column.filter();
                 if (!NullFilter.class.equals(filter)) {
-                    value = SimpleParseCache.get().getFilter(filter).serialize(value);
+                    value = SimpleParseCache.get().getFilter(filter).onSave(value);
                 }
 
                 if (column.self() && fieldType.isAssignableFrom(ParseObject.class)) {
@@ -217,82 +217,181 @@ public class SimpleParse {
             field.setAccessible(true);
             try {
                 Class<? extends Filter> filter = column.filter();
+                boolean filtered = false;
+                Object saveValue = null;
+                if (!NullFilter.class.equals(filter)) {
+                    Class<?> saveType = SimpleParseCache.get().getFilter(filter).getSaveType();
+                    if (!saveType.equals(fieldType)) {
+                        filtered = true;
+                        if (column.self() && saveType.isAssignableFrom(ParseObject.class)) {
+                            saveValue = (ParseObject) to;
+                            saveValue = (ParseObject) SimpleParseCache.get().getFilter(filter).onLoad(saveValue);
+                        }
+                        else if (saveType.equals(Byte.class) || saveType.equals(byte.class)) {
+                            saveValue = (byte) to.getInt(columnName);
+                            saveValue = (byte) SimpleParseCache.get().getFilter(filter).onLoad(saveValue);
+                        }
+                        else if (saveType.equals(Short.class) || saveType.equals(short.class)) {
+                            saveValue = (short) to.getInt(columnName);
+                            saveValue = (short) SimpleParseCache.get().getFilter(filter).onLoad(saveValue);
+                        }
+                        else if (saveType.equals(Integer.class) || saveType.equals(int.class)) {
+                            saveValue = to.getInt(columnName);
+                            saveValue = (int) SimpleParseCache.get().getFilter(filter).onLoad(saveValue);
+                        }
+                        else if (saveType.equals(Long.class) || saveType.equals(long.class)) {
+                            saveValue = to.getLong(columnName);
+                            saveValue = (long) SimpleParseCache.get().getFilter(filter).onLoad(saveValue);
+                        }
+                        else if (saveType.equals(Float.class) || saveType.equals(float.class)) {
+                            saveValue = (float) to.getDouble(columnName);
+                            saveValue = (float) SimpleParseCache.get().getFilter(filter).onLoad(saveValue);
+                        }
+                        else if (saveType.equals(Double.class) || saveType.equals(double.class)) {
+                            saveValue = to.getDouble(columnName);
+                            saveValue = (double) SimpleParseCache.get().getFilter(filter).onLoad(saveValue);
+                        }
+                        else if (saveType.equals(Boolean.class) || saveType.equals(boolean.class)) {
+                            saveValue = to.getBoolean(columnName);
+                            saveValue = (boolean) SimpleParseCache.get().getFilter(filter).onLoad(saveValue);
+                        }
+                        else if (saveType.equals(Character.class) || saveType.equals(char.class)) {
+                            saveValue = to.getString(columnName);
+                            saveValue = (String) SimpleParseCache.get().getFilter(filter).onLoad(saveValue);
+                        }
+                        else if (saveType.equals(String.class)) {
+                            if (SimpleParseObject.OBJECT_ID.equals(columnName)) {
+                                saveValue = to.getObjectId();
+                            } else {
+                                saveValue = to.getString(columnName);
+                            }
+
+                            saveValue = (String) SimpleParseCache.get().getFilter(filter).onLoad(saveValue);
+
+                            String prefix = column.prefix();
+                            Class<?> prefixClass = column.prefixClass();
+
+                            if (!NullValue.class.equals(prefixClass)) {
+                                prefix = (String) ((Value) SimpleParseCache.get().getObject(prefixClass)).value();
+                            }
+
+                            String suffix = column.suffix();
+                            Class<?> suffixClass = column.suffixClass();
+
+                            if (!NullValue.class.equals(suffixClass)) {
+                                suffix = (String) ((Value) SimpleParseCache.get().getObject(suffixClass)).value();
+                            }
+
+                            saveValue = prefix + saveValue + suffix;
+                        }
+                        else if (saveType.equals(Byte[].class) || saveType.equals(byte[].class)) {
+                            saveValue = to.getString(columnName);
+                            saveValue = (String) SimpleParseCache.get().getFilter(filter).onLoad(saveValue);
+                        }
+                        else if (saveType.equals(JSONObject.class)) {
+                            saveValue = to.getJSONObject(columnName);
+                            saveValue = (JSONObject) SimpleParseCache.get().getFilter(filter).onLoad(saveValue);
+                        }
+                        else if (saveType.equals(List.class)) {
+                            saveValue = to.getList(columnName);
+                            saveValue = (List) SimpleParseCache.get().getFilter(filter).onLoad(saveValue);
+                        }
+                        else if (saveType.equals(Date.class)) {
+                            saveValue = to.getDate(columnName);
+                            saveValue = (Date) SimpleParseCache.get().getFilter(filter).onLoad(saveValue);
+                        }
+                        else if (saveType.equals(ParseUser.class)) {
+                            saveValue = to.getParseUser(columnName);
+                            saveValue = (ParseUser) SimpleParseCache.get().getFilter(filter).onLoad(saveValue);
+                        }
+                        else if (saveType.equals(ParseGeoPoint.class)) {
+                            saveValue = to.getParseGeoPoint(columnName);
+                            saveValue = (ParseGeoPoint) SimpleParseCache.get().getFilter(filter).onLoad(saveValue);
+                        }
+                        else if (saveType.equals(ParseObject.class)) {
+                            saveValue = to.getParseObject(columnName);
+                            saveValue = (ParseObject) SimpleParseCache.get().getFilter(filter).onLoad(saveValue);
+                        }
+                    }
+                }
 
                 if (column.self() && fieldType.isAssignableFrom(ParseObject.class)) {
-                    ParseObject value = (ParseObject) to;
-                    if (!NullFilter.class.equals(filter)) {
-                        value = (ParseObject) SimpleParseCache.get().getFilter(filter).deserialize(value);
+                    ParseObject value = (ParseObject) (filtered ? saveValue : to);
+                    if (!filtered && !NullFilter.class.equals(filter)) {
+                        value = (ParseObject) SimpleParseCache.get().getFilter(filter).onLoad(value);
                     }
 
                     field.set(from, value);
                 }
                 else if (fieldType.equals(Byte.class) || fieldType.equals(byte.class)) {
-                    byte value = (byte) to.getInt(columnName);
+                    byte value = (byte) (filtered ? saveValue : to.getInt(columnName));
                     if (!NullFilter.class.equals(filter)) {
-                        value = (byte) SimpleParseCache.get().getFilter(filter).deserialize(value);
+                        value = (byte) SimpleParseCache.get().getFilter(filter).onLoad(value);
                     }
 
                     field.setByte(from, value);
                 }
                 else if (fieldType.equals(Short.class) || fieldType.equals(short.class)) {
-                    short value = (short) to.getInt(columnName);
+                    short value = (short) (filtered ? saveValue : to.getInt(columnName));
                     if (!NullFilter.class.equals(filter)) {
-                        value = (short) SimpleParseCache.get().getFilter(filter).deserialize(value);
+                        value = (short) SimpleParseCache.get().getFilter(filter).onLoad(value);
                     }
 
                     field.setShort(from, value);
                 }
                 else if (fieldType.equals(Integer.class) || fieldType.equals(int.class)) {
-                    int value = to.getInt(columnName);
+                    int value = (int) (filtered ? saveValue : to.getInt(columnName));
                     if (!NullFilter.class.equals(filter)) {
-                        value = (int) SimpleParseCache.get().getFilter(filter).deserialize(value);
+                        value = (int) SimpleParseCache.get().getFilter(filter).onLoad(value);
                     }
 
                     field.setInt(from, value);
                 }
                 else if (fieldType.equals(Long.class) || fieldType.equals(long.class)) {
-                    long value = to.getLong(columnName);
+                    long value = (long) (filtered ? saveValue : to.getLong(columnName));
                     if (!NullFilter.class.equals(filter)) {
-                        value = (long) SimpleParseCache.get().getFilter(filter).deserialize(value);
+                        value = (long) SimpleParseCache.get().getFilter(filter).onLoad(value);
                     }
 
                     field.setLong(from, value);
                 }
                 else if (fieldType.equals(Float.class) || fieldType.equals(float.class)) {
-                    float value = (float) to.getDouble(columnName);
+                    float value = (float) (filtered ? saveValue : to.getDouble(columnName));
                     if (!NullFilter.class.equals(filter)) {
-                        value = (float) SimpleParseCache.get().getFilter(filter).deserialize(value);
+                        value = (float) SimpleParseCache.get().getFilter(filter).onLoad(value);
                     }
 
                     field.setFloat(from, value);
                 }
                 else if (fieldType.equals(Double.class) || fieldType.equals(double.class)) {
-                    double value = to.getDouble(columnName);
+                    double value = (double) (filtered ? saveValue : to.getDouble(columnName));
                     if (!NullFilter.class.equals(filter)) {
-                        value = (double) SimpleParseCache.get().getFilter(filter).deserialize(value);
+                        value = (double) SimpleParseCache.get().getFilter(filter).onLoad(value);
                     }
 
                     field.setDouble(from, value);
                 }
                 else if (fieldType.equals(Boolean.class) || fieldType.equals(boolean.class)) {
-                    boolean value = to.getBoolean(columnName);
+                    boolean value = (boolean) (filtered ? saveValue : to.getBoolean(columnName));
                     if (!NullFilter.class.equals(filter)) {
-                        value = (boolean) SimpleParseCache.get().getFilter(filter).deserialize(value);
+                        value = (boolean) SimpleParseCache.get().getFilter(filter).onLoad(value);
                     }
 
                     field.setBoolean(from, value);
                 }
                 else if (fieldType.equals(Character.class) || fieldType.equals(char.class)) {
-                    String value = to.getString(columnName);
+                    String value = (String) (filtered ? saveValue : to.getString(columnName));
                     if (!NullFilter.class.equals(filter)) {
-                        value = (String) SimpleParseCache.get().getFilter(filter).deserialize(value);
+                        value = (String) SimpleParseCache.get().getFilter(filter).onLoad(value);
                     }
 
                     field.set(from, value);
                 }
                 else if (fieldType.equals(String.class)) {
                     String value = null;
-
+                    if (filtered) {
+                        value = (String) saveValue;
+                    } else {
                     if (SimpleParseObject.OBJECT_ID.equals(columnName)) {
                         value = to.getObjectId();
                     } else {
@@ -300,7 +399,7 @@ public class SimpleParse {
                     }
 
                     if (!NullFilter.class.equals(filter)) {
-                        value = (String) SimpleParseCache.get().getFilter(filter).deserialize(value);
+                        value = (String) SimpleParseCache.get().getFilter(filter).onLoad(value);
                     }
 
                     String prefix = column.prefix();
@@ -316,61 +415,62 @@ public class SimpleParse {
                     }
 
                     value = prefix + value + suffix;
+                    }
 
                     field.set(from, value);
                 }
                 else if (fieldType.equals(Byte[].class) || fieldType.equals(byte[].class)) {
-                    String value = to.getString(columnName);
-                    if (!NullFilter.class.equals(filter)) {
-                        value = (String) SimpleParseCache.get().getFilter(filter).deserialize(value);
+                    String value = (String) (filtered ? saveValue : to.getString(columnName));
+                    if (!filtered && !NullFilter.class.equals(filter)) {
+                        value = (String) SimpleParseCache.get().getFilter(filter).onLoad(value);
                     }
 
                     field.set(from, value);
                 }
                 else if (fieldType.equals(JSONObject.class)) {
-                    JSONObject value = to.getJSONObject(columnName);
-                    if (!NullFilter.class.equals(filter)) {
-                        value = (JSONObject) SimpleParseCache.get().getFilter(filter).deserialize(value);
+                    JSONObject value = (JSONObject) (filtered ? saveValue : to.getJSONObject(columnName));
+                    if (!filtered && !NullFilter.class.equals(filter)) {
+                        value = (JSONObject) SimpleParseCache.get().getFilter(filter).onLoad(value);
                     }
 
                     field.set(from, value);
                 }
                 else if (fieldType.equals(List.class)) {
-                    List value = to.getList(columnName);
-                    if (!NullFilter.class.equals(filter)) {
-                        value = (List) SimpleParseCache.get().getFilter(filter).deserialize(value);
+                    List value = (List) (filtered ? saveValue : to.getList(columnName));
+                    if (!filtered && !NullFilter.class.equals(filter)) {
+                        value = (List) SimpleParseCache.get().getFilter(filter).onLoad(value);
                     }
 
                     field.set(from, value);
                 }
                 else if (fieldType.equals(Date.class)) {
-                    Date value = to.getDate(columnName);
-                    if (!NullFilter.class.equals(filter)) {
-                        value = (Date) SimpleParseCache.get().getFilter(filter).deserialize(value);
+                    Date value = (Date) (filtered ? saveValue : to.getDate(columnName));
+                    if (!filtered && !NullFilter.class.equals(filter)) {
+                        value = (Date) SimpleParseCache.get().getFilter(filter).onLoad(value);
                     }
 
                     field.set(from, value);
                 }
                 else if (fieldType.equals(ParseUser.class)) {
-                    ParseUser value = to.getParseUser(columnName);
-                    if (!NullFilter.class.equals(filter)) {
-                        value = (ParseUser) SimpleParseCache.get().getFilter(filter).deserialize(value);
+                    ParseUser value = (ParseUser) (filtered ? saveValue : to.getParseUser(columnName));
+                    if (!filtered && !NullFilter.class.equals(filter)) {
+                        value = (ParseUser) SimpleParseCache.get().getFilter(filter).onLoad(value);
                     }
 
                     field.set(from, value);
                 }
                 else if (fieldType.equals(ParseGeoPoint.class)) {
-                    ParseGeoPoint value = to.getParseGeoPoint(columnName);
-                    if (!NullFilter.class.equals(filter)) {
-                        value = (ParseGeoPoint) SimpleParseCache.get().getFilter(filter).deserialize(value);
+                    ParseGeoPoint value = (ParseGeoPoint) (filtered ? saveValue : to.getParseGeoPoint(columnName));
+                    if (!filtered && !NullFilter.class.equals(filter)) {
+                        value = (ParseGeoPoint) SimpleParseCache.get().getFilter(filter).onLoad(value);
                     }
 
                     field.set(from, value);
                 }
                 else if (fieldType.equals(ParseObject.class)) {
-                    ParseObject value = to.getParseObject(columnName);
-                    if (!NullFilter.class.equals(filter)) {
-                        value = (ParseObject) SimpleParseCache.get().getFilter(filter).deserialize(value);
+                    ParseObject value = (ParseObject) (filtered ? saveValue : to.getParseObject(columnName));
+                    if (!filtered && !NullFilter.class.equals(filter)) {
+                        value = (ParseObject) SimpleParseCache.get().getFilter(filter).onLoad(value);
                     }
 
                     field.set(from, value);
