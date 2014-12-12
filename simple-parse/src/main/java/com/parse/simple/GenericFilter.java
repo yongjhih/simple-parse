@@ -18,15 +18,18 @@ package com.parse.simple;
 
 import android.os.Bundle;
 import com.parse.ParseObject;
-import java.lang.reflect.ParameterizedType;
+//import java.lang.reflect.ParameterizedType;
+import net.jodah.typetools.TypeResolver;
 
 public class GenericFilter<F, T> implements Filter<F, T> {
     private final Class<F> loadType;
     private final Class<T> saveType;
 
     public GenericFilter() {
-        this.loadType = (Class<F>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        this.saveType = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
+        //Class<?>[] typeArgs = TypeResolver.resolveRawArguments(GenericFilter.class, Filter.class);
+        Class<?>[] typeArgs = TypeResolver.resolveRawArguments(getClass(), Filter.class);
+        this.loadType = (Class<F>) typeArgs[0];
+        this.saveType = (Class<T>) typeArgs[1];
     }
 
     @Override
