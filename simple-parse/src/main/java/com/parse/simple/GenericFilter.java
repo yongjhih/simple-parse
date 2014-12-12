@@ -26,8 +26,8 @@ public class GenericFilter<F, T> implements Filter<F, T> {
     private final Class<T> saveType;
 
     public GenericFilter() {
-        //Class<?>[] typeArgs = TypeResolver.resolveRawArguments(GenericFilter.class, Filter.class);
-        Class<?>[] typeArgs = TypeResolver.resolveRawArguments(getClass(), Filter.class);
+        Class<?>[] typeArgs = TypeResolver.resolveRawArguments(GenericFilter.class, Filter.class);
+        //Class<?>[] typeArgs = TypeResolver.resolveRawArguments(getClass(), Filter.class);
         this.loadType = (Class<F>) typeArgs[0];
         this.saveType = (Class<T>) typeArgs[1];
     }
