@@ -39,6 +39,7 @@ import com.parse.ParseException;
 import org.json.JSONObject;
 import android.text.TextUtils;
 import android.support.v4.util.LruCache;
+import android.os.Bundle;
 
 public class SimpleParseCache {
     public static final int CLASS_CACHE_SIZE = 32;
@@ -56,6 +57,9 @@ public class SimpleParseCache {
 
     public final LruCache<Class<?>, Map<Field, ParseColumn>> columnFieldsCache =
         new LruCache<Class<?>, Map<Field, ParseColumn>>(CLASS_CACHE_SIZE);
+
+    public final Map<String, Bundle> columnDataCache =
+        new LinkedHashMap<String, Bundle>();
 
     private static SimpleParseCache sInstance = new SimpleParseCache();
 

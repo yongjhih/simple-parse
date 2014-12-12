@@ -16,6 +16,8 @@
 
 package com.parse.simple;
 
+import android.os.Bundle;
+
 public class SimpleFilter implements Filter<Object, Object> {
     @Override
     public Class<Object> getSaveType() {
@@ -27,13 +29,21 @@ public class SimpleFilter implements Filter<Object, Object> {
         return Object.class;
     }
 
-    @Override
     public Object onSave(Object value) {
         return value;
     }
 
-    @Override
     public Object onLoad(Object value) {
         return value;
+    }
+
+    @Override
+    public Object onSave(Object value, Bundle icicle) {
+        return onSave(value);
+    }
+
+    @Override
+    public Object onLoad(Object value, Bundle icicle) {
+        return onLoad(value);
     }
 }
