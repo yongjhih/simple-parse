@@ -119,7 +119,7 @@ public class SimpleParse {
                 } else if (!NullValue.class.equals(column.onSave())) {
                     continue;
                 } else if (!OptionalFilter.class.equals(filter)) {
-                    value = SimpleParseCache.get().getFilter(filter).onSave(value, icicle);
+                    value = SimpleParseCache.get().getFilter(filter).onSave(value, icicle, from, to);
                 }
 
                 if (column.self() && fieldType.isAssignableFrom(ParseObject.class)) {
@@ -250,39 +250,39 @@ public class SimpleParse {
                         filtered = true;
                         if (column.self() && saveType.isAssignableFrom(ParseObject.class)) {
                             saveValue = (ParseObject) to;
-                            saveValue = (ParseObject) filter.onLoad(saveValue, icicle);
+                            saveValue = (ParseObject) filter.onLoad(saveValue, icicle, from, to);
                         }
                         else if (saveType.equals(Byte.class) || saveType.equals(byte.class)) {
                             saveValue = (byte) to.getInt(columnName);
-                            saveValue = (byte) filter.onLoad(saveValue, icicle);
+                            saveValue = (byte) filter.onLoad(saveValue, icicle, from, to);
                         }
                         else if (saveType.equals(Short.class) || saveType.equals(short.class)) {
                             saveValue = (short) to.getInt(columnName);
-                            saveValue = (short) filter.onLoad(saveValue, icicle);
+                            saveValue = (short) filter.onLoad(saveValue, icicle, from, to);
                         }
                         else if (saveType.equals(Integer.class) || saveType.equals(int.class)) {
                             saveValue = to.getInt(columnName);
-                            saveValue = (int) filter.onLoad(saveValue, icicle);
+                            saveValue = (int) filter.onLoad(saveValue, icicle, from, to);
                         }
                         else if (saveType.equals(Long.class) || saveType.equals(long.class)) {
                             saveValue = to.getLong(columnName);
-                            saveValue = (long) filter.onLoad(saveValue, icicle);
+                            saveValue = (long) filter.onLoad(saveValue, icicle, from, to);
                         }
                         else if (saveType.equals(Float.class) || saveType.equals(float.class)) {
                             saveValue = (float) to.getDouble(columnName);
-                            saveValue = (float) filter.onLoad(saveValue, icicle);
+                            saveValue = (float) filter.onLoad(saveValue, icicle, from, to);
                         }
                         else if (saveType.equals(Double.class) || saveType.equals(double.class)) {
                             saveValue = to.getDouble(columnName);
-                            saveValue = (double) filter.onLoad(saveValue, icicle);
+                            saveValue = (double) filter.onLoad(saveValue, icicle, from, to);
                         }
                         else if (saveType.equals(Boolean.class) || saveType.equals(boolean.class)) {
                             saveValue = to.getBoolean(columnName);
-                            saveValue = (boolean) filter.onLoad(saveValue, icicle);
+                            saveValue = (boolean) filter.onLoad(saveValue, icicle, from, to);
                         }
                         else if (saveType.equals(Character.class) || saveType.equals(char.class)) {
                             saveValue = to.getString(columnName);
-                            saveValue = (String) filter.onLoad(saveValue, icicle);
+                            saveValue = (String) filter.onLoad(saveValue, icicle, from, to);
                         }
                         else if (saveType.equals(String.class)) {
                             if (SimpleParseObject.OBJECT_ID.equals(columnName)) {
@@ -291,7 +291,7 @@ public class SimpleParse {
                                 saveValue = to.getString(columnName);
                             }
 
-                            saveValue = (String) filter.onLoad(saveValue, icicle);
+                            saveValue = (String) filter.onLoad(saveValue, icicle, from, to);
 
                             String prefix = column.prefix();
                             Class<?> prefixClass = column.prefixClass();
@@ -311,31 +311,31 @@ public class SimpleParse {
                         }
                         else if (saveType.equals(Byte[].class) || saveType.equals(byte[].class)) {
                             saveValue = to.getString(columnName);
-                            saveValue = (String) filter.onLoad(saveValue, icicle);
+                            saveValue = (String) filter.onLoad(saveValue, icicle, from, to);
                         }
                         else if (saveType.equals(JSONObject.class)) {
                             saveValue = to.getJSONObject(columnName);
-                            saveValue = (JSONObject) filter.onLoad(saveValue, icicle);
+                            saveValue = (JSONObject) filter.onLoad(saveValue, icicle, from, to);
                         }
                         else if (saveType.equals(List.class)) {
                             saveValue = to.getList(columnName);
-                            saveValue = (List) filter.onLoad(saveValue, icicle);
+                            saveValue = (List) filter.onLoad(saveValue, icicle, from, to);
                         }
                         else if (saveType.equals(Date.class)) {
                             saveValue = to.getDate(columnName);
-                            saveValue = (Date) filter.onLoad(saveValue, icicle);
+                            saveValue = (Date) filter.onLoad(saveValue, icicle, from, to);
                         }
                         else if (saveType.equals(ParseUser.class)) {
                             saveValue = to.getParseUser(columnName);
-                            saveValue = (ParseUser) filter.onLoad(saveValue, icicle);
+                            saveValue = (ParseUser) filter.onLoad(saveValue, icicle, from, to);
                         }
                         else if (saveType.equals(ParseGeoPoint.class)) {
                             saveValue = to.getParseGeoPoint(columnName);
-                            saveValue = (ParseGeoPoint) filter.onLoad(saveValue, icicle);
+                            saveValue = (ParseGeoPoint) filter.onLoad(saveValue, icicle, from, to);
                         }
                         else if (saveType.equals(ParseObject.class)) {
                             saveValue = to.getParseObject(columnName);
-                            saveValue = (ParseObject) filter.onLoad(saveValue, icicle);
+                            saveValue = (ParseObject) filter.onLoad(saveValue, icicle, from, to);
                         }
                     }
                 }
@@ -343,7 +343,7 @@ public class SimpleParse {
                 if (column.self() && fieldType.isAssignableFrom(ParseObject.class)) {
                     ParseObject value = (ParseObject) (filtered ? saveValue : to);
                     if (!filtered && !(filter instanceof OptionalFilter)) {
-                        value = (ParseObject) filter.onLoad(value, icicle);
+                        value = (ParseObject) filter.onLoad(value, icicle, from, to);
                     }
 
                     field.set(from, value);
@@ -351,7 +351,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Byte.class) || fieldType.equals(byte.class)) {
                     byte value = (byte) (filtered ? saveValue : to.getInt(columnName));
                     if (!filtered && !(filter instanceof OptionalFilter)) {
-                        value = (byte) filter.onLoad(value, icicle);
+                        value = (byte) filter.onLoad(value, icicle, from, to);
                     }
 
                     field.setByte(from, value);
@@ -359,7 +359,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Short.class) || fieldType.equals(short.class)) {
                     short value = (short) (filtered ? saveValue : to.getInt(columnName));
                     if (!filtered && !(filter instanceof OptionalFilter)) {
-                        value = (short) filter.onLoad(value, icicle);
+                        value = (short) filter.onLoad(value, icicle, from, to);
                     }
 
                     field.setShort(from, value);
@@ -367,7 +367,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Integer.class) || fieldType.equals(int.class)) {
                     int value = (int) (filtered ? saveValue : to.getInt(columnName));
                     if (!filtered && !(filter instanceof OptionalFilter)) {
-                        value = (int) filter.onLoad(value, icicle);
+                        value = (int) filter.onLoad(value, icicle, from, to);
                     }
 
                     field.setInt(from, value);
@@ -375,7 +375,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Long.class) || fieldType.equals(long.class)) {
                     long value = (long) (filtered ? saveValue : to.getLong(columnName));
                     if (!filtered && !(filter instanceof OptionalFilter)) {
-                        value = (long) filter.onLoad(value, icicle);
+                        value = (long) filter.onLoad(value, icicle, from, to);
                     }
 
                     field.setLong(from, value);
@@ -383,7 +383,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Float.class) || fieldType.equals(float.class)) {
                     float value = (float) (filtered ? saveValue : to.getDouble(columnName));
                     if (!filtered && !(filter instanceof OptionalFilter)) {
-                        value = (float) filter.onLoad(value, icicle);
+                        value = (float) filter.onLoad(value, icicle, from, to);
                     }
 
                     field.setFloat(from, value);
@@ -391,7 +391,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Double.class) || fieldType.equals(double.class)) {
                     double value = (double) (filtered ? saveValue : to.getDouble(columnName));
                     if (!filtered && !(filter instanceof OptionalFilter)) {
-                        value = (double) filter.onLoad(value, icicle);
+                        value = (double) filter.onLoad(value, icicle, from, to);
                     }
 
                     field.setDouble(from, value);
@@ -399,7 +399,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Boolean.class) || fieldType.equals(boolean.class)) {
                     boolean value = (boolean) (filtered ? saveValue : to.getBoolean(columnName));
                     if (!filtered && !(filter instanceof OptionalFilter)) {
-                        value = (boolean) filter.onLoad(value, icicle);
+                        value = (boolean) filter.onLoad(value, icicle, from, to);
                     }
 
                     field.setBoolean(from, value);
@@ -407,7 +407,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Character.class) || fieldType.equals(char.class)) {
                     String value = (String) (filtered ? saveValue : to.getString(columnName));
                     if (!filtered && !(filter instanceof OptionalFilter)) {
-                        value = (String) filter.onLoad(value, icicle);
+                        value = (String) filter.onLoad(value, icicle, from, to);
                     }
 
                     field.set(from, value);
@@ -424,7 +424,7 @@ public class SimpleParse {
                     }
 
                     if (!(filter instanceof OptionalFilter)) {
-                        value = (String) filter.onLoad(value, icicle);
+                        value = (String) filter.onLoad(value, icicle, from, to);
                     }
 
                     String prefix = column.prefix();
@@ -447,7 +447,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Byte[].class) || fieldType.equals(byte[].class)) {
                     String value = (String) (filtered ? saveValue : to.getString(columnName));
                     if (!filtered && !(filter instanceof OptionalFilter)) {
-                        value = (String) filter.onLoad(value, icicle);
+                        value = (String) filter.onLoad(value, icicle, from, to);
                     }
 
                     field.set(from, value);
@@ -455,7 +455,7 @@ public class SimpleParse {
                 else if (fieldType.equals(JSONObject.class)) {
                     JSONObject value = (JSONObject) (filtered ? saveValue : to.getJSONObject(columnName));
                     if (!filtered && !(filter instanceof OptionalFilter)) {
-                        value = (JSONObject) filter.onLoad(value, icicle);
+                        value = (JSONObject) filter.onLoad(value, icicle, from, to);
                     }
 
                     field.set(from, value);
@@ -463,7 +463,7 @@ public class SimpleParse {
                 else if (fieldType.equals(List.class)) {
                     List value = (List) (filtered ? saveValue : to.getList(columnName));
                     if (!filtered && !(filter instanceof OptionalFilter)) {
-                        value = (List) filter.onLoad(value, icicle);
+                        value = (List) filter.onLoad(value, icicle, from, to);
                     }
 
                     field.set(from, value);
@@ -471,7 +471,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Date.class)) {
                     Date value = (Date) (filtered ? saveValue : to.getDate(columnName));
                     if (!filtered && !(filter instanceof OptionalFilter)) {
-                        value = (Date) filter.onLoad(value, icicle);
+                        value = (Date) filter.onLoad(value, icicle, from, to);
                     }
 
                     field.set(from, value);
@@ -479,7 +479,7 @@ public class SimpleParse {
                 else if (fieldType.equals(ParseUser.class)) {
                     ParseUser value = (ParseUser) (filtered ? saveValue : to.getParseUser(columnName));
                     if (!filtered && !(filter instanceof OptionalFilter)) {
-                        value = (ParseUser) filter.onLoad(value, icicle);
+                        value = (ParseUser) filter.onLoad(value, icicle, from, to);
                     }
 
                     field.set(from, value);
@@ -487,7 +487,7 @@ public class SimpleParse {
                 else if (fieldType.equals(ParseGeoPoint.class)) {
                     ParseGeoPoint value = (ParseGeoPoint) (filtered ? saveValue : to.getParseGeoPoint(columnName));
                     if (!filtered && !(filter instanceof OptionalFilter)) {
-                        value = (ParseGeoPoint) filter.onLoad(value, icicle);
+                        value = (ParseGeoPoint) filter.onLoad(value, icicle, from, to);
                     }
 
                     field.set(from, value);
@@ -495,7 +495,7 @@ public class SimpleParse {
                 else if (fieldType.equals(ParseObject.class)) {
                     ParseObject value = (ParseObject) (filtered ? saveValue : to.getParseObject(columnName));
                     if (!filtered && !(filter instanceof OptionalFilter)) {
-                        value = (ParseObject) filter.onLoad(value, icicle);
+                        value = (ParseObject) filter.onLoad(value, icicle, from, to);
                     }
 
                     field.set(from, value);

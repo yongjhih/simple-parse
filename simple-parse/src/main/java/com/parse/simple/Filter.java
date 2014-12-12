@@ -17,10 +17,11 @@
 package com.parse.simple;
 
 import android.os.Bundle;
+import com.parse.ParseObject;
 
 public interface Filter<T, E> {
     Class<E> getSaveType();
     Class<T> getLoadType();
-    E onSave(T value, Bundle icicle);
-    T onLoad(E value, Bundle icicle);
+    E onSave(T value, Bundle icicle, Object from, ParseObject to);
+    T onLoad(E value, Bundle icicle, Object from, ParseObject to);
 }

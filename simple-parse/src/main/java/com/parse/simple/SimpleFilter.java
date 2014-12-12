@@ -17,6 +17,7 @@
 package com.parse.simple;
 
 import android.os.Bundle;
+import com.parse.ParseObject;
 
 public class SimpleFilter implements Filter<Object, Object> {
     @Override
@@ -37,13 +38,21 @@ public class SimpleFilter implements Filter<Object, Object> {
         return value;
     }
 
-    @Override
     public Object onSave(Object value, Bundle icicle) {
         return onSave(value);
     }
 
-    @Override
     public Object onLoad(Object value, Bundle icicle) {
         return onLoad(value);
+    }
+
+    @Override
+    public Object onSave(Object value, Bundle icicle, Object from, ParseObject to) {
+        return onSave(value, icicle);
+    }
+
+    @Override
+    public Object onLoad(Object value, Bundle icicle, Object from, ParseObject to) {
+        return onLoad(value, icicle);
     }
 }
