@@ -94,7 +94,7 @@ public class SimpleParse {
         return commit(from, from);
     }
 
-    public static ParseObject commit(Object from, ParseObject to) {
+    public synchronized static ParseObject commit(Object from, ParseObject to) {
         for (Map.Entry<SimpleField, SimpleParseColumn> fieldEntry : SimpleParseCache.get().getColumnFields(from.getClass()).entrySet()) {
             final SimpleField field = fieldEntry.getKey();
             final SimpleParseColumn column = fieldEntry.getValue();
@@ -217,7 +217,7 @@ public class SimpleParse {
         return (T) load(to, to);
     }
 
-    public static <T> T load(T from, ParseObject to) {
+    public synchronized static <T> T load(T from, ParseObject to) {
         for (Map.Entry<SimpleField, SimpleParseColumn> fieldEntry : SimpleParseCache.get().getColumnFields(from.getClass()).entrySet()) {
             final SimpleField field = fieldEntry.getKey();
             final SimpleParseColumn column = fieldEntry.getValue();

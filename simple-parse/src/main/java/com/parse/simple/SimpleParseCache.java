@@ -70,7 +70,7 @@ public class SimpleParseCache {
         return sInstance;
     }
 
-    public String getClassName(Class<?> klass) {
+    public synchronized String getClassName(Class<?> klass) {
         String name = SimpleParseCache.get().classNameCache.get(klass);
 
         if (name != null) {
@@ -90,7 +90,7 @@ public class SimpleParseCache {
         return name;
     }
 
-    public Map<SimpleField, SimpleParseColumn> getColumnFields(Class<?> klass) {
+    public synchronized Map<SimpleField, SimpleParseColumn> getColumnFields(Class<?> klass) {
         Map<SimpleField, SimpleParseColumn> columnFieldsCache = SimpleParseCache.get().columnFieldsCache.get(klass);
         if (columnFieldsCache != null) return columnFieldsCache;
 
