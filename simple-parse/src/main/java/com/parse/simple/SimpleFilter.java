@@ -19,17 +19,7 @@ package com.parse.simple;
 import android.os.Bundle;
 import com.parse.ParseObject;
 
-public class SimpleFilter implements Filter<Object, Object> {
-    @Override
-    public Class<Object> getSaveType() {
-        return Object.class;
-    }
-
-    @Override
-    public Class<Object> getLoadType() {
-        return Object.class;
-    }
-
+public class SimpleFilter extends GenericFilter<Object, Object> {
     public Object onSave(Object value) {
         return value;
     }

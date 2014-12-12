@@ -16,5 +16,5 @@
 
 package com.parse.simple;
 
-public interface OptionalFilter<T, E> extends Filter<T, E> {
+public class OptionalFilter extends SimpleFilter {
 }
