@@ -38,19 +38,24 @@ import com.parse.CountCallback;
 import com.parse.ParseException;
 import org.json.JSONObject;
 import android.text.TextUtils;
+import android.support.v4.util.LruCache;
 
 public class SimpleParseCache {
-    public final Map<Class<?>, String> classNameCache =
-        new LinkedHashMap<Class<?>, String>();
+    public static final int CLASS_CACHE_SIZE = 32;
+    //public static final int FIELD_CACHE_SIZE = 32; // Disabled, We cannot confirm fields that is compeleted or not to return.
+    public static final int FILTER_CACHE_SIZE = 32;
 
-    public final Map<Class<? extends Filter>, Filter> filtersCache =
-        new LinkedHashMap<Class<? extends Filter>, Filter>();
+    public final LruCache<Class<?>, String> classNameCache =
+        new LruCache<Class<?>, String>(CLASS_CACHE_SIZE);
 
-    public final Map<Class<?>, Object> objectsCache =
-        new LinkedHashMap<Class<?>, Object>();
+    public final LruCache<Class<? extends Filter>, Filter> filtersCache =
+        new LruCache<Class<? extends Filter>, Filter>(FILTER_CACHE_SIZE);
 
-    public final Map<Class<?>, Map<Field, ParseColumn>> columnFieldsCache =
-        new LinkedHashMap<Class<?>, Map<Field, ParseColumn>>();
+    public final LruCache<Class<?>, Object> objectsCache =
+        new LruCache<Class<?>, Object>(CLASS_CACHE_SIZE);
+
+    public final LruCache<Class<?>, Map<Field, ParseColumn>> columnFieldsCache =
+        new LruCache<Class<?>, Map<Field, ParseColumn>>(CLASS_CACHE_SIZE);
 
     private static SimpleParseCache sInstance = new SimpleParseCache();
 
@@ -59,10 +64,6 @@ public class SimpleParseCache {
 
     public static SimpleParseCache get() {
         return sInstance;
-    }
-
-    public static class FieldInfo {
-        public String name;
     }
 
     public String getClassName(Class<?> klass) {
@@ -165,7 +166,7 @@ public class SimpleParseCache {
         return object;
     }
 
-    public Filter getFilterInstance(Class<? extends Filter> klass) {
+    public Filter getFilter(Class<? extends Filter> klass) {
         Filter filter = filtersCache.get(klass);
 
         if (filter == null) {

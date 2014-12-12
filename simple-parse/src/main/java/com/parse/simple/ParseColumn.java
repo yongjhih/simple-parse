@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.parse.simple;
 
 import java.lang.annotation.ElementType;
@@ -28,8 +29,8 @@ public @interface ParseColumn {
     String prefix() default "";
     String suffix() default "";
     Class<? extends Filter> filter() default NullFilter.class;
-    Class<?> prefixClass() default Object.class;
-    Class<?> suffixClass() default Object.class;
+    Class<? extends Value> prefixClass() default NullValue.class;
+    Class<? extends Value> suffixClass() default NullValue.class;
     boolean self() default false;
     //boolean objectId() default false;
     //boolean remove() default false;

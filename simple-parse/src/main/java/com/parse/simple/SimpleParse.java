@@ -107,10 +107,12 @@ public class SimpleParse {
 
                 Class<? extends Filter> filter = column.filter();
                 if (!NullFilter.class.equals(filter)) {
-                    value = SimpleParseCache.get().getFilterInstance(filter).serialize(value);
+                    value = SimpleParseCache.get().getFilter(filter).serialize(value);
                 }
 
-                if (value == null) {
+                if (column.self() && fieldType.isAssignableFrom(ParseObject.class)) {
+                    // do nothing
+                } else if (value == null) {
                     to.put(columnName, JSONObject.NULL);
                     //to.remove(columnName);
                 }
@@ -145,12 +147,12 @@ public class SimpleParse {
 
                     Class<?> prefixClass = column.prefixClass();
                     if (!Object.class.equals(prefixClass)) {
-                        prefix = ((IStringValue) SimpleParseCache.get().getObject(prefixClass)).value();
+                        prefix = (String) ((Value) SimpleParseCache.get().getObject(prefixClass)).value();
                     }
 
                     Class<?> suffixClass = column.suffixClass();
                     if (!Object.class.equals(suffixClass)) {
-                        suffix = ((IStringValue) SimpleParseCache.get().getObject(suffixClass)).value();
+                        suffix = (String) ((Value) SimpleParseCache.get().getObject(suffixClass)).value();
                     }
 
                     if (!TextUtils.isEmpty(prefix) && valueString.startsWith(prefix)) {
@@ -219,7 +221,7 @@ public class SimpleParse {
                 if (column.self() && fieldType.isAssignableFrom(ParseObject.class)) {
                     ParseObject value = (ParseObject) to;
                     if (!NullFilter.class.equals(filter)) {
-                        value = (ParseObject) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                        value = (ParseObject) SimpleParseCache.get().getFilter(filter).deserialize(value);
                     }
 
                     field.set(from, value);
@@ -227,7 +229,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Byte.class) || fieldType.equals(byte.class)) {
                     byte value = (byte) to.getInt(columnName);
                     if (!NullFilter.class.equals(filter)) {
-                        value = (byte) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                        value = (byte) SimpleParseCache.get().getFilter(filter).deserialize(value);
                     }
 
                     field.setByte(from, value);
@@ -235,7 +237,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Short.class) || fieldType.equals(short.class)) {
                     short value = (short) to.getInt(columnName);
                     if (!NullFilter.class.equals(filter)) {
-                        value = (short) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                        value = (short) SimpleParseCache.get().getFilter(filter).deserialize(value);
                     }
 
                     field.setShort(from, value);
@@ -243,7 +245,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Integer.class) || fieldType.equals(int.class)) {
                     int value = to.getInt(columnName);
                     if (!NullFilter.class.equals(filter)) {
-                        value = (int) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                        value = (int) SimpleParseCache.get().getFilter(filter).deserialize(value);
                     }
 
                     field.setInt(from, value);
@@ -251,7 +253,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Long.class) || fieldType.equals(long.class)) {
                     long value = to.getLong(columnName);
                     if (!NullFilter.class.equals(filter)) {
-                        value = (long) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                        value = (long) SimpleParseCache.get().getFilter(filter).deserialize(value);
                     }
 
                     field.setLong(from, value);
@@ -259,7 +261,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Float.class) || fieldType.equals(float.class)) {
                     float value = (float) to.getDouble(columnName);
                     if (!NullFilter.class.equals(filter)) {
-                        value = (float) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                        value = (float) SimpleParseCache.get().getFilter(filter).deserialize(value);
                     }
 
                     field.setFloat(from, value);
@@ -267,7 +269,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Double.class) || fieldType.equals(double.class)) {
                     double value = to.getDouble(columnName);
                     if (!NullFilter.class.equals(filter)) {
-                        value = (double) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                        value = (double) SimpleParseCache.get().getFilter(filter).deserialize(value);
                     }
 
                     field.setDouble(from, value);
@@ -275,7 +277,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Boolean.class) || fieldType.equals(boolean.class)) {
                     boolean value = to.getBoolean(columnName);
                     if (!NullFilter.class.equals(filter)) {
-                        value = (boolean) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                        value = (boolean) SimpleParseCache.get().getFilter(filter).deserialize(value);
                     }
 
                     field.setBoolean(from, value);
@@ -283,7 +285,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Character.class) || fieldType.equals(char.class)) {
                     String value = to.getString(columnName);
                     if (!NullFilter.class.equals(filter)) {
-                        value = (String) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                        value = (String) SimpleParseCache.get().getFilter(filter).deserialize(value);
                     }
 
                     field.set(from, value);
@@ -298,19 +300,19 @@ public class SimpleParse {
                     }
 
                     if (!NullFilter.class.equals(filter)) {
-                        value = (String) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                        value = (String) SimpleParseCache.get().getFilter(filter).deserialize(value);
                     }
 
                     String prefix = column.prefix();
                     Class<?> prefixClass = column.prefixClass();
                     if (!Object.class.equals(prefixClass)) {
-                        prefix = ((IStringValue) SimpleParseCache.get().getObject(prefixClass)).value();
+                        prefix = (String) ((Value) SimpleParseCache.get().getObject(prefixClass)).value();
                     }
 
                     String suffix = column.suffix();
                     Class<?> suffixClass = column.suffixClass();
                     if (!Object.class.equals(suffixClass)) {
-                        suffix = ((IStringValue) SimpleParseCache.get().getObject(suffixClass)).value();
+                        suffix = (String) ((Value) SimpleParseCache.get().getObject(suffixClass)).value();
                     }
 
                     value = prefix + value + suffix;
@@ -320,7 +322,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Byte[].class) || fieldType.equals(byte[].class)) {
                     String value = to.getString(columnName);
                     if (!NullFilter.class.equals(filter)) {
-                        value = (String) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                        value = (String) SimpleParseCache.get().getFilter(filter).deserialize(value);
                     }
 
                     field.set(from, value);
@@ -328,7 +330,7 @@ public class SimpleParse {
                 else if (fieldType.equals(JSONObject.class)) {
                     JSONObject value = to.getJSONObject(columnName);
                     if (!NullFilter.class.equals(filter)) {
-                        value = (JSONObject) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                        value = (JSONObject) SimpleParseCache.get().getFilter(filter).deserialize(value);
                     }
 
                     field.set(from, value);
@@ -336,7 +338,7 @@ public class SimpleParse {
                 else if (fieldType.equals(List.class)) {
                     List value = to.getList(columnName);
                     if (!NullFilter.class.equals(filter)) {
-                        value = (List) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                        value = (List) SimpleParseCache.get().getFilter(filter).deserialize(value);
                     }
 
                     field.set(from, value);
@@ -344,7 +346,7 @@ public class SimpleParse {
                 else if (fieldType.equals(Date.class)) {
                     Date value = to.getDate(columnName);
                     if (!NullFilter.class.equals(filter)) {
-                        value = (Date) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                        value = (Date) SimpleParseCache.get().getFilter(filter).deserialize(value);
                     }
 
                     field.set(from, value);
@@ -352,7 +354,7 @@ public class SimpleParse {
                 else if (fieldType.equals(ParseUser.class)) {
                     ParseUser value = to.getParseUser(columnName);
                     if (!NullFilter.class.equals(filter)) {
-                        value = (ParseUser) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                        value = (ParseUser) SimpleParseCache.get().getFilter(filter).deserialize(value);
                     }
 
                     field.set(from, value);
@@ -360,7 +362,7 @@ public class SimpleParse {
                 else if (fieldType.equals(ParseGeoPoint.class)) {
                     ParseGeoPoint value = to.getParseGeoPoint(columnName);
                     if (!NullFilter.class.equals(filter)) {
-                        value = (ParseGeoPoint) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                        value = (ParseGeoPoint) SimpleParseCache.get().getFilter(filter).deserialize(value);
                     }
 
                     field.set(from, value);
@@ -368,7 +370,7 @@ public class SimpleParse {
                 else if (fieldType.equals(ParseObject.class)) {
                     ParseObject value = to.getParseObject(columnName);
                     if (!NullFilter.class.equals(filter)) {
-                        value = (ParseObject) SimpleParseCache.get().getFilterInstance(filter).deserialize(value);
+                        value = (ParseObject) SimpleParseCache.get().getFilter(filter).deserialize(value);
                     }
 
                     field.set(from, value);
