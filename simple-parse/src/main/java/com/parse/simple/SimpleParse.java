@@ -114,7 +114,11 @@ public class SimpleParse {
                 Object value = field.get(from);
 
                 Class<? extends Filter> filter = column.filter();
-                if (!NullFilter.class.equals(filter)) {
+                if (!Optional.class.equals(column.onSave())) {
+                    value = column.onSave();
+                } else if (!NullValue.class.equals(column.onSave())) {
+                    continue;
+                } else if (!OptionalFilter.class.equals(filter)) {
                     value = SimpleParseCache.get().getFilter(filter).onSave(value, icicle);
                 }
 
@@ -235,7 +239,12 @@ public class SimpleParse {
                 boolean filtered = false;
                 Object saveValue = null;
 
-                if (!(filter instanceof NullFilter)) {
+                if (!Optional.class.equals(column.onLoad())) {
+                    filtered = true;
+                    saveValue = column.onLoad();
+                } else if (!NullValue.class.equals(column.onLoad())) {
+                    continue;
+                } else if (!(filter instanceof OptionalFilter)) {
                     Class<?> saveType = filter.getSaveType();
                     if (!saveType.equals(fieldType)) {
                         filtered = true;
@@ -287,14 +296,14 @@ public class SimpleParse {
                             String prefix = column.prefix();
                             Class<?> prefixClass = column.prefixClass();
 
-                            if (!NullValue.class.equals(prefixClass)) {
+                            if (!Optional.class.equals(prefixClass)) {
                                 prefix = (String) ((Value) SimpleParseCache.get().getObject(prefixClass)).value();
                             }
 
                             String suffix = column.suffix();
                             Class<?> suffixClass = column.suffixClass();
 
-                            if (!NullValue.class.equals(suffixClass)) {
+                            if (!Optional.class.equals(suffixClass)) {
                                 suffix = (String) ((Value) SimpleParseCache.get().getObject(suffixClass)).value();
                             }
 
@@ -333,7 +342,7 @@ public class SimpleParse {
 
                 if (column.self() && fieldType.isAssignableFrom(ParseObject.class)) {
                     ParseObject value = (ParseObject) (filtered ? saveValue : to);
-                    if (!filtered && !(filter instanceof NullFilter)) {
+                    if (!filtered && !(filter instanceof OptionalFilter)) {
                         value = (ParseObject) filter.onLoad(value, icicle);
                     }
 
@@ -341,7 +350,7 @@ public class SimpleParse {
                 }
                 else if (fieldType.equals(Byte.class) || fieldType.equals(byte.class)) {
                     byte value = (byte) (filtered ? saveValue : to.getInt(columnName));
-                    if (!filtered && !(filter instanceof NullFilter)) {
+                    if (!filtered && !(filter instanceof OptionalFilter)) {
                         value = (byte) filter.onLoad(value, icicle);
                     }
 
@@ -349,7 +358,7 @@ public class SimpleParse {
                 }
                 else if (fieldType.equals(Short.class) || fieldType.equals(short.class)) {
                     short value = (short) (filtered ? saveValue : to.getInt(columnName));
-                    if (!filtered && !(filter instanceof NullFilter)) {
+                    if (!filtered && !(filter instanceof OptionalFilter)) {
                         value = (short) filter.onLoad(value, icicle);
                     }
 
@@ -357,7 +366,7 @@ public class SimpleParse {
                 }
                 else if (fieldType.equals(Integer.class) || fieldType.equals(int.class)) {
                     int value = (int) (filtered ? saveValue : to.getInt(columnName));
-                    if (!filtered && !(filter instanceof NullFilter)) {
+                    if (!filtered && !(filter instanceof OptionalFilter)) {
                         value = (int) filter.onLoad(value, icicle);
                     }
 
@@ -365,7 +374,7 @@ public class SimpleParse {
                 }
                 else if (fieldType.equals(Long.class) || fieldType.equals(long.class)) {
                     long value = (long) (filtered ? saveValue : to.getLong(columnName));
-                    if (!filtered && !(filter instanceof NullFilter)) {
+                    if (!filtered && !(filter instanceof OptionalFilter)) {
                         value = (long) filter.onLoad(value, icicle);
                     }
 
@@ -373,7 +382,7 @@ public class SimpleParse {
                 }
                 else if (fieldType.equals(Float.class) || fieldType.equals(float.class)) {
                     float value = (float) (filtered ? saveValue : to.getDouble(columnName));
-                    if (!filtered && !(filter instanceof NullFilter)) {
+                    if (!filtered && !(filter instanceof OptionalFilter)) {
                         value = (float) filter.onLoad(value, icicle);
                     }
 
@@ -381,7 +390,7 @@ public class SimpleParse {
                 }
                 else if (fieldType.equals(Double.class) || fieldType.equals(double.class)) {
                     double value = (double) (filtered ? saveValue : to.getDouble(columnName));
-                    if (!filtered && !(filter instanceof NullFilter)) {
+                    if (!filtered && !(filter instanceof OptionalFilter)) {
                         value = (double) filter.onLoad(value, icicle);
                     }
 
@@ -389,7 +398,7 @@ public class SimpleParse {
                 }
                 else if (fieldType.equals(Boolean.class) || fieldType.equals(boolean.class)) {
                     boolean value = (boolean) (filtered ? saveValue : to.getBoolean(columnName));
-                    if (!filtered && !(filter instanceof NullFilter)) {
+                    if (!filtered && !(filter instanceof OptionalFilter)) {
                         value = (boolean) filter.onLoad(value, icicle);
                     }
 
@@ -397,7 +406,7 @@ public class SimpleParse {
                 }
                 else if (fieldType.equals(Character.class) || fieldType.equals(char.class)) {
                     String value = (String) (filtered ? saveValue : to.getString(columnName));
-                    if (!filtered && !(filter instanceof NullFilter)) {
+                    if (!filtered && !(filter instanceof OptionalFilter)) {
                         value = (String) filter.onLoad(value, icicle);
                     }
 
@@ -414,7 +423,7 @@ public class SimpleParse {
                         value = to.getString(columnName);
                     }
 
-                    if (!(filter instanceof NullFilter)) {
+                    if (!(filter instanceof OptionalFilter)) {
                         value = (String) filter.onLoad(value, icicle);
                     }
 
@@ -437,7 +446,7 @@ public class SimpleParse {
                 }
                 else if (fieldType.equals(Byte[].class) || fieldType.equals(byte[].class)) {
                     String value = (String) (filtered ? saveValue : to.getString(columnName));
-                    if (!filtered && !(filter instanceof NullFilter)) {
+                    if (!filtered && !(filter instanceof OptionalFilter)) {
                         value = (String) filter.onLoad(value, icicle);
                     }
 
@@ -445,7 +454,7 @@ public class SimpleParse {
                 }
                 else if (fieldType.equals(JSONObject.class)) {
                     JSONObject value = (JSONObject) (filtered ? saveValue : to.getJSONObject(columnName));
-                    if (!filtered && !(filter instanceof NullFilter)) {
+                    if (!filtered && !(filter instanceof OptionalFilter)) {
                         value = (JSONObject) filter.onLoad(value, icicle);
                     }
 
@@ -453,7 +462,7 @@ public class SimpleParse {
                 }
                 else if (fieldType.equals(List.class)) {
                     List value = (List) (filtered ? saveValue : to.getList(columnName));
-                    if (!filtered && !(filter instanceof NullFilter)) {
+                    if (!filtered && !(filter instanceof OptionalFilter)) {
                         value = (List) filter.onLoad(value, icicle);
                     }
 
@@ -461,7 +470,7 @@ public class SimpleParse {
                 }
                 else if (fieldType.equals(Date.class)) {
                     Date value = (Date) (filtered ? saveValue : to.getDate(columnName));
-                    if (!filtered && !(filter instanceof NullFilter)) {
+                    if (!filtered && !(filter instanceof OptionalFilter)) {
                         value = (Date) filter.onLoad(value, icicle);
                     }
 
@@ -469,7 +478,7 @@ public class SimpleParse {
                 }
                 else if (fieldType.equals(ParseUser.class)) {
                     ParseUser value = (ParseUser) (filtered ? saveValue : to.getParseUser(columnName));
-                    if (!filtered && !(filter instanceof NullFilter)) {
+                    if (!filtered && !(filter instanceof OptionalFilter)) {
                         value = (ParseUser) filter.onLoad(value, icicle);
                     }
 
@@ -477,7 +486,7 @@ public class SimpleParse {
                 }
                 else if (fieldType.equals(ParseGeoPoint.class)) {
                     ParseGeoPoint value = (ParseGeoPoint) (filtered ? saveValue : to.getParseGeoPoint(columnName));
-                    if (!filtered && !(filter instanceof NullFilter)) {
+                    if (!filtered && !(filter instanceof OptionalFilter)) {
                         value = (ParseGeoPoint) filter.onLoad(value, icicle);
                     }
 
@@ -485,7 +494,7 @@ public class SimpleParse {
                 }
                 else if (fieldType.equals(ParseObject.class)) {
                     ParseObject value = (ParseObject) (filtered ? saveValue : to.getParseObject(columnName));
-                    if (!filtered && !(filter instanceof NullFilter)) {
+                    if (!filtered && !(filter instanceof OptionalFilter)) {
                         value = (ParseObject) filter.onLoad(value, icicle);
                     }
 

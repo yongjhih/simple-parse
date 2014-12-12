@@ -28,10 +28,12 @@ public @interface ParseColumn {
     String value() default "";
     String prefix() default "";
     String suffix() default "";
-    Class<? extends Filter> filter() default NullFilter.class;
-    Class<? extends Value> prefixClass() default NullValue.class;
-    Class<? extends Value> suffixClass() default NullValue.class;
+    Class<? extends Filter> filter() default OptionalFilter.class;
+    Class<? extends Value> prefixClass() default Optional.class;
+    Class<? extends Value> suffixClass() default Optional.class;
     boolean self() default false;
+    Class<? extends Value> onSave() default Optional.class;
+    Class<? extends Value> onLoad() default Optional.class;
     //boolean objectId() default false;
     //boolean remove() default false;
     //String equals() default "";
