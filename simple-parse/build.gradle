@@ -19,6 +19,8 @@ repositories {
 dependencies {
     compile 'com.facebook.android:facebook-android-sdk:3.20.+'
     compile 'com.infstory:parse:+'
+    compile 'com.android.support:support-v4:20.+' // LruCache
+    compile 'net.jodah:typetools:0.4.0'
 }
 
 android {

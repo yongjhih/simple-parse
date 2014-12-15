@@ -16,15 +16,13 @@
 package com.parse.simple;
 
 public class SimpleParseColumn {
-    String value;
-    String prefix;
-    String suffix;
-
     ParseColumn column;
 
     public SimpleParseColumn(ParseColumn column) {
         this.column = column;
     }
+
+    public String value;
 
     public String value() {
         if (value == null) {
@@ -33,6 +31,8 @@ public class SimpleParseColumn {
         return value;
     }
 
+    public String suffix;
+
     public String suffix() {
         if (suffix == null) {
             suffix = column.suffix();
@@ -40,10 +40,66 @@ public class SimpleParseColumn {
         return suffix;
     }
 
+    public String prefix;
+
     public String prefix() {
         if (prefix == null) {
             prefix = column.prefix();
         }
         return prefix;
+    }
+
+    public Class<? extends Filter> filter;
+
+    public Class<? extends Filter> filter() {
+        if (filter == null) {
+            filter = column.filter();
+        }
+        return filter;
+    }
+
+    public Class<? extends Value> prefixClass;
+
+    public Class<? extends Value> prefixClass() {
+        if (prefixClass == null) {
+            prefixClass = column.prefixClass();
+        }
+        return prefixClass;
+    }
+
+    public Class<? extends Value> suffixClass;
+
+    public Class<? extends Value> suffixClass() {
+        if (suffixClass == null) {
+            suffixClass = column.suffixClass();
+        }
+        return suffixClass;
+    }
+
+    public Boolean self;
+
+    public boolean self() {
+        if (self == null) {
+            self = column.self();
+        }
+        return self;
+    }
+
+    public Class<? extends Value> saver;
+
+    public Class<? extends Value> saver()  {
+        if (saver == null) {
+            saver = column.saver();
+        }
+        return saver;
+    }
+
+    public Class<? extends Value> loader;
+
+    public Class<? extends Value> loader() {
+        if (loader == null) {
+            loader = column.loader();
+        }
+        return loader;
     }
 }

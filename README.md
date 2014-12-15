@@ -102,17 +102,52 @@ SimpleParse.from(ParseGameScore.class).down(ParseGameScore.PLAYER_WEIGHT, 100).a
 Bonus
 =====
 
-Import from other non-ParseObject into ParseObject:
+* Import from other non-ParseObject into ParseObject:
 
 ```java
 public class Profile {
     @ParseColumn
     public String displayName;
 }
-
+...
 Profile profile = new Profile();
 profile.displayName = "Andrew Chen";
 SimpleParse.from(profile).saveInBackground(ParseUser.getCurrentUser());
+```
+
+* @ParseColumn(prefix = "http://example.com/file/"): prefix string
+
+```java
+@ParseColumn(prefix = "http://example.com/file/")
+public String picture;
+...
+gameScore.picture = "andrew_chen.png" // It will be saved as "http://example.com/file/andrew_chen.png" into Parse
+gameScore.commit().saveInBackground();
+```
+
+* @ParseColumn(filter = MySimpleFilter.class)
+
+```java
+@ParseColumn(filter = MySimpleFilter.class)
+public String username;
+...
+gameScore.username = "Andrew Chen";
+...
+public class MySimpleFilter extends com.parse.simple.SimpleFilter {
+    @Override
+    public String serialize(String value) {
+        return value.toLowerCase();
+    }
+}
+...
+gameScore.commit().saveInBackground(); // It will be saved as lowercase "andrew chen" into Parse
+```
+
+* @ParseColumn(value = "customColumnName")
+
+```java
+@ParseColumn(value = "display_name") // or default column name is field name
+public String displayName;
 ```
 
 See Also

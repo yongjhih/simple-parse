@@ -38,16 +38,28 @@ import com.parse.CountCallback;
 import com.parse.ParseException;
 import org.json.JSONObject;
 import android.text.TextUtils;
+import android.support.v4.util.LruCache;
+import android.os.Bundle;
 
 public class SimpleParseCache {
-    public final Map<Class<?>, String> classNameCache =
-        new LinkedHashMap<Class<?>, String>();
+    public static final int CLASS_CACHE_SIZE = 32;
+    //public static final int FIELD_CACHE_SIZE = 32; // Disabled, We cannot confirm fields that is compeleted or not to return.
+    public static final int FILTER_CACHE_SIZE = 32;
 
-    public final Map<Class<?>, Map<Field, FieldInfo>> fieldInfoCache =
-        new LinkedHashMap<Class<?>, Map<Field, FieldInfo>>();
+    public final LruCache<Class<?>, String> classNameCache =
+        new LruCache<Class<?>, String>(CLASS_CACHE_SIZE);
 
-    public final Map<Class<?>, Map<SimpleField, SimpleParseColumn>> columnFieldsCache =
-        new LinkedHashMap<Class<?>, Map<SimpleField, SimpleParseColumn>>();
+    public final LruCache<Class<? extends Filter>, Filter> filtersCache =
+        new LruCache<Class<? extends Filter>, Filter>(FILTER_CACHE_SIZE);
+
+    public final LruCache<Class<?>, Object> objectsCache =
+        new LruCache<Class<?>, Object>(CLASS_CACHE_SIZE);
+
+    public final LruCache<Class<?>, Map<SimpleField, SimpleParseColumn>> columnFieldsCache =
+        new LruCache<Class<?>, Map<SimpleField, SimpleParseColumn>>(CLASS_CACHE_SIZE);
+
+    public final Map<String, Bundle> columnDataCache =
+        new LinkedHashMap<String, Bundle>();
 
     private static SimpleParseCache sInstance = new SimpleParseCache();
 
@@ -61,11 +73,7 @@ public class SimpleParseCache {
         return sInstance;
     }
 
-    public static class FieldInfo {
-        public String name;
-    }
-
-    public String getClassName(Class<?> klass) {
+    public synchronized String getClassName(Class<?> klass) {
         String name = SimpleParseCache.get().classNameCache.get(klass);
 
         if (name != null) {
@@ -85,7 +93,7 @@ public class SimpleParseCache {
         return name;
     }
 
-    public Map<SimpleField, SimpleParseColumn> getColumnFields(Class<?> klass) {
+    public synchronized Map<SimpleField, SimpleParseColumn> getColumnFields(Class<?> klass) {
         Map<SimpleField, SimpleParseColumn> columnFieldsCache = SimpleParseCache.get().columnFieldsCache.get(klass);
         if (columnFieldsCache != null) return columnFieldsCache;
 
@@ -114,15 +122,15 @@ public class SimpleParseCache {
     }
 
     public String getColumnName(SimpleField field, SimpleParseColumn column) {
-            String name = column.value();
+        String name = column.value();
 
-            if (!TextUtils.isEmpty(name)) {
-                return name;
-            }
-
-            name = field.getName();
-
+        if (!TextUtils.isEmpty(name)) {
             return name;
+        }
+
+        name = field.getName();
+
+        return name;
     }
 
     public String getColumnName(Class<?> klass, SimpleField field) {
@@ -147,5 +155,39 @@ public class SimpleParseCache {
         }
 
         return name;
+    }
+
+    public Object getObject(Class<?> klass) {
+        Object object = objectsCache.get(klass);
+
+        if (object == null) {
+            try {
+                object = (Object) klass.newInstance();
+                objectsCache.put(klass, object);
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return object;
+    }
+
+    public Filter getFilter(Class<? extends Filter> klass) {
+        Filter filter = filtersCache.get(klass);
+
+        if (filter == null) {
+            try {
+                filter = (Filter) klass.newInstance();
+                filtersCache.put(klass, filter);
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return filter;
     }
 }
