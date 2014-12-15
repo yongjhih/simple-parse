@@ -170,6 +170,28 @@ public class SimpleParse {
         return (T) load(to, to);
     }
 
+    public synchronized static <T> T load(Class<T> from, ParseObject to) {
+        String parseObjectId = to.getObjectId();
+        T object = (T) SimpleParseCache.get().parseObjectsCache.get(parseObjectId);
+
+        if (object != null) {
+            return object;
+        }
+
+        try {
+            object = from.newInstance();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        object = load(object, to);
+        SimpleParseCache.get().parseObjectsCache.put(parseObjectId, object);
+
+        return object;
+    }
+
     public static <T> T load(T from, ParseObject to) {
         for (Map.Entry<SimpleField, SimpleParseColumn> fieldEntry : SimpleParseCache.get().getColumnFields(from.getClass()).entrySet()) {
             final SimpleField field = fieldEntry.getKey();

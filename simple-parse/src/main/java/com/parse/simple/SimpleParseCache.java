@@ -51,6 +51,9 @@ public class SimpleParseCache {
 
     private static SimpleParseCache sInstance = new SimpleParseCache();
 
+    public final Map<String, Object> parseObjectsCache =
+        new LinkedHashMap<String, Object>();
+
     private SimpleParseCache() {
     }
 
