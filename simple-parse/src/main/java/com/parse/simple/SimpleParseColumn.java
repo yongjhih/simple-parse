@@ -85,21 +85,21 @@ public class SimpleParseColumn {
         return self;
     }
 
-    public Class<? extends Value> onSave;
+    public Class<? extends Value> saver;
 
-    public Class<? extends Value> onSave()  {
-        if (onSave == null) {
-            onSave = column.onSave();
+    public Class<? extends Value> saver()  {
+        if (saver == null) {
+            saver = column.saver();
         }
-        return onSave;
+        return saver;
     }
 
-    public Class<? extends Value> onLoad;
+    public Class<? extends Value> loader;
 
-    public Class<? extends Value> onLoad() {
-        if (onLoad == null) {
-            onLoad = column.onLoad();
+    public Class<? extends Value> loader() {
+        if (loader == null) {
+            loader = column.loader();
         }
-        return onLoad;
+        return loader;
     }
 }

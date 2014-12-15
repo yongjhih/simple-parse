@@ -113,9 +113,9 @@ public class SimpleParse {
                 Object value = field.get(from);
 
                 Class<? extends Filter> filter = column.filter();
-                if (!Optional.class.equals(column.onSave())) {
-                    value = column.onSave();
-                } else if (!NullValue.class.equals(column.onSave())) {
+                if (!Optional.class.equals(column.saver())) {
+                    value = ((Value) SimpleParseCache.get().getObject(column.saver())).value();
+                } else if (!NullValue.class.equals(column.saver())) {
                     continue;
                 } else if (!OptionalFilter.class.equals(filter)) {
                     value = SimpleParseCache.get().getFilter(filter).onSave(value, icicle, from, to);
@@ -157,12 +157,12 @@ public class SimpleParse {
                     String suffix = column.suffix();
 
                     Class<?> prefixClass = column.prefixClass();
-                    if (!Object.class.equals(prefixClass)) {
+                    if (!Optional.class.equals(prefixClass)) {
                         prefix = (String) ((Value) SimpleParseCache.get().getObject(prefixClass)).value();
                     }
 
                     Class<?> suffixClass = column.suffixClass();
-                    if (!Object.class.equals(suffixClass)) {
+                    if (!Optional.class.equals(suffixClass)) {
                         suffix = (String) ((Value) SimpleParseCache.get().getObject(suffixClass)).value();
                     }
 
@@ -238,10 +238,10 @@ public class SimpleParse {
                 boolean filtered = false;
                 Object saveValue = null;
 
-                if (!Optional.class.equals(column.onLoad())) {
+                if (!Optional.class.equals(column.loader())) {
                     filtered = true;
-                    saveValue = column.onLoad();
-                } else if (!NullValue.class.equals(column.onLoad())) {
+                    saveValue = ((Value) SimpleParseCache.get().getObject(column.loader())).value();
+                } else if (NullValue.class.equals(column.loader())) {
                     continue;
                 } else if (!(filter instanceof OptionalFilter)) {
                     Class<?> saveType = filter.getSaveType();
@@ -428,13 +428,13 @@ public class SimpleParse {
 
                     String prefix = column.prefix();
                     Class<?> prefixClass = column.prefixClass();
-                    if (!Object.class.equals(prefixClass)) {
+                    if (!Optional.class.equals(prefixClass)) {
                         prefix = (String) ((Value) SimpleParseCache.get().getObject(prefixClass)).value();
                     }
 
                     String suffix = column.suffix();
                     Class<?> suffixClass = column.suffixClass();
-                    if (!Object.class.equals(suffixClass)) {
+                    if (!Optional.class.equals(suffixClass)) {
                         suffix = (String) ((Value) SimpleParseCache.get().getObject(suffixClass)).value();
                     }
 

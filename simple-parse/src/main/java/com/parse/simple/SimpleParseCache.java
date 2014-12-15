@@ -119,15 +119,15 @@ public class SimpleParseCache {
     }
 
     public String getColumnName(SimpleField field, SimpleParseColumn column) {
-            String name = column.value();
+        String name = column.value();
 
-            if (!TextUtils.isEmpty(name)) {
-                return name;
-            }
-
-            name = field.getName();
-
+        if (!TextUtils.isEmpty(name)) {
             return name;
+        }
+
+        name = field.getName();
+
+        return name;
     }
 
     public String getColumnName(Class<?> klass, SimpleField field) {
@@ -160,6 +160,7 @@ public class SimpleParseCache {
         if (object == null) {
             try {
                 object = (Object) klass.newInstance();
+                objectsCache.put(klass, object);
             } catch (InstantiationException e) {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
@@ -176,6 +177,7 @@ public class SimpleParseCache {
         if (filter == null) {
             try {
                 filter = (Filter) klass.newInstance();
+                filtersCache.put(klass, filter);
             } catch (InstantiationException e) {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
