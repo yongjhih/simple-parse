@@ -64,8 +64,8 @@ public class SimpleParseCache {
 
     private static SimpleParseCache sInstance = new SimpleParseCache();
 
-    public final LruCache<String, Object> parseObjectsCache =
-        new LruCache<String, Object>(OJBECT_CACHE_SIZE);
+    public final SimpleLruCache<String, Object> parseObjectsCache =
+        new SimpleLruCache<String, Object>(OJBECT_CACHE_SIZE);
 
     private SimpleParseCache() {
     }
