@@ -218,10 +218,11 @@ public class SimpleParse {
     }
 
     public synchronized static <T> T load(Class<T> from, ParseObject to) {
-        String parseObjectId = to.getObjectId();
-        T object = (T) SimpleParseCache.get().parseObjectsCache.get(parseObjectId);
+        String id = to.getObjectId();
+        T object = null;
 
-        if (object != null) {
+        if (SimpleParseCache.get().parseObjectsCache.containsKey(id)) {
+            object = (T) SimpleParseCache.get().parseObjectsCache.get(id);
             return object;
         }
 
@@ -234,7 +235,7 @@ public class SimpleParse {
         }
 
         object = load(object, to);
-        SimpleParseCache.get().parseObjectsCache.put(parseObjectId, object);
+        SimpleParseCache.get().parseObjectsCache.put(id, object);
 
         return object;
     }
