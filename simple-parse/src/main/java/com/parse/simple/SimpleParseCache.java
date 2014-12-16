@@ -45,7 +45,7 @@ public class SimpleParseCache {
     public static final int CLASS_CACHE_SIZE = 32;
     //public static final int FIELD_CACHE_SIZE = 32; // Disabled, We cannot confirm fields that is compeleted or not to return.
     public static final int FILTER_CACHE_SIZE = 32;
-    public static final int OJBECT_CACHE_SIZE = 32;
+    public static final int OBJECT_CACHE_SIZE = 1024;
 
     public final LruCache<Class<?>, String> classNameCache =
         new LruCache<Class<?>, String>(CLASS_CACHE_SIZE);
@@ -65,7 +65,7 @@ public class SimpleParseCache {
     private static SimpleParseCache sInstance = new SimpleParseCache();
 
     public final SimpleLruCache<String, Object> parseObjectsCache =
-        new SimpleLruCache<String, Object>(OJBECT_CACHE_SIZE);
+        new SimpleLruCache<String, Object>(OBJECT_CACHE_SIZE);
 
     private SimpleParseCache() {
     }
