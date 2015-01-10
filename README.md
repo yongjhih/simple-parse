@@ -77,7 +77,7 @@ ParseGameScore gameScore = new ParseGameScore();
 gameScore.score = 1337;
 gameScore.playerName = "Sean Plott";
 gameScore.cheatMode = false;
-ParseGameScore.commit().saveInBackground();
+gameScore.commit().saveInBackground();
 ```
 
 Application:
