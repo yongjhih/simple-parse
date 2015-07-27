@@ -1,5 +1,8 @@
-Simple Parse
-============
+# Simple Parse
+
+Here is better compile-version: https://github.com/yongjhih/auto-parse
+
+## Usage
 
 before:
 
